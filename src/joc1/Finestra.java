@@ -10,6 +10,8 @@ public class Finestra extends Frame {
 	final int ALÇADA = 600, AMPLADA = 1000;
 	
 	public static void main(String[] args) {
+		DirectionalInput dirInp = new DirectionalInput();
+
 		new Finestra();
 	
 	}

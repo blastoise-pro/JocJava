@@ -13,8 +13,7 @@ public class Cotxe {
 		this.v = v;
 	}
 	
-	void moure(int direct) {
-		if (dir & )
+	void moure() {
 		x+=v;
 	}
 	
