@@ -7,7 +7,7 @@ public class Finestra extends Frame {
 	Joc j; //variables globals
 	Image im;
 	Graphics g; //pintarem aquest graphics
-	final int ALÇADA = 600, AMPLADA = 1000;
+	static final int ALÇADA = 600, AMPLADA = 1000;
 	
 	public static void main(String[] args) {
 		DirectionalInput dirInp = new DirectionalInput();

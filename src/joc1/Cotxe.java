@@ -4,20 +4,22 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Cotxe {
-	int x,y,v;
+	Vec2 pos;
+	int v;
 	int ample=70, alt=40; //minuscules i no majúscules -> variables i no constants
 
 	Cotxe(int x, int y, int v) {
-		this.x = x;
-		this.y = y;
+		pos = new Vec2(x, y);
 		this.v = v;
 	}
 	
-	void moure() {
-		x+=v;
+	void moure(DirectionalInput dirInp) {
+		pos.Add(dirInp.getDirection().scale(v));
 	}
 	
 	void pintar (Graphics g) {
+		int x = (int) pos.x;
+		int y = (int) -pos.y + Finestra.ALÇADA;
 		g.setColor(Color.BLACK);
 		g.drawRect(x, y, ample, alt);
 		g.drawLine((int)(x+ample*0.75), y, (int)(x+ample*0.75), y+alt);
