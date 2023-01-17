@@ -24,31 +24,39 @@ enum Direction {
     }
 }
 
-public class DirectionalInput {
-    byte directionBits;
+class DirectionalInput {
+    private byte directionBits;
 
-    public DirectionalInput() {
+    DirectionalInput() {
         directionBits = 0;
     }
 
-    public void addInput(Direction dir){
+    void addInput(Direction dir){
         directionBits |= dir.directionBit();
     }
 
-    public void removeInput(Direction dir) {
+    void removeInput(Direction dir) {
         directionBits &= ~dir.directionBit();
     }
 
-    public boolean isPressed(Direction dir) {
+    void clear() {
+        directionBits = 0;
+    }
+
+    boolean isPressed(Direction dir) {
         return (directionBits & dir.directionBit()) != 0;
     }
 
-    public Vec2 getDirection() {
+    Vec2 getRawDirection() {
         Vec2 res = new Vec2();
         for (Direction dir:Direction.values()){
             if (isPressed(dir))
                 res.Add(dir.vector());
         }
-        return res.normalized();
+        return res;
+    }
+
+    Vec2 getDirection() {
+        return getRawDirection().normalized();
     }
 }

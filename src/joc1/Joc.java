@@ -1,56 +1,121 @@
 package joc1;
 
-import java.awt.Color;
-import java.awt.event.*;
+import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class Joc {
-	
-	Finestra f;
+	final double targetFrameTime = 1 / 200.0;
+	final double fixedDeltaTime = 1 / 200.0;
+	double startTime = System.currentTimeMillis()/1000.0;
+	double deltaTime = 0;
+	double unsimulatedTime = 0;
+
 	InputManager input = new InputManager();
-	Cotxe[] c = new Cotxe [3]; //aquí no estem creant cotxes, només guardant espai per un apuntador a 3 cotxes
-	Joc (Finestra f) { // Fem això per lligar les classes finestra i joc
-		this.f=f;
+	Finestra f;
+
+	Random ran = new Random();
+
+	boolean gamePaused = false;
+	Ship playerShip;
+	List<Ship> enemies = new ArrayList<>();
+	List<Bullet> bullets = new ArrayList<>();
+
+	public static void main(String[] args) {
+		Joc j = new Joc();
+		j.run();
+	}
+
+	public Joc () {
+		f = new Finestra(this);
 		f.addKeyListener(input);
+		f.addMouseListener(input);
 	}
 	
-	void run () {
-		// inicialitzacio dels objectes del joc (naus...)
-//		y=50;
-		c[0] = new Cotxe (300,0,1); // l'ideal seria una funció inicialització i deixar el codi principal net
-		c[1] = new Cotxe (50,100,2);
-		c[2] = new Cotxe (10,200,4);
-		
-		while (true) { // bucle infinit que pararem amb l'stop
-			moureElements(input.dir); // moure els objectes de pantalla
-			// detectar col·lisions
-			repintaPantalla(); // repintar la pantalla
+	public void run () {
+		playerShip = new PlayerShip(new Vec2(0, 0));
+		for (int i = 0; i < 5; i++) {
+			enemies.add(new EnemyShip(Vec2.random(f.l, f.r, f.b, f.t)));
+		}
 
-			if (input.space) {
-				System.out.println("Shoot");
+		while (true) {
+			double currentTime = System.currentTimeMillis()/1000.0;
+			double frameTime = currentTime - startTime;
+			if (frameTime < targetFrameTime) {
+				try {
+					Thread.sleep((long) ((targetFrameTime - frameTime) * 1000));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			startTime = System.currentTimeMillis()/1000.0;
+			double sleepTime = startTime - currentTime;
+			// Per què necessitem mesurar el temps de "descans" en comptes d'utilitzar directament targetFrameTime - frameTime?
+			// Perquè la conversió a long provoca pèrdues de precissió importants, provocant que el deltaTime
+			// es calculi incorrectament i les físiques es descontrolin.
+			deltaTime = frameTime + sleepTime;
+			unsimulatedTime += deltaTime;
+
+			// Guardem Inputs
+			input.updateMousePosition(f);
+			input.updateInputs();
+
+			update();
+
+			// Físiques
+			while (unsimulatedTime >= fixedDeltaTime) {
+				fixedUpdate();
+				unsimulatedTime -= fixedDeltaTime;
 			}
 
-			try { 
-				Thread.sleep(50); // afegim un retard de 50 ms per no sobrecarregar la màquina
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			// Render
+			f.repaint(); // repintar la pantalla
 		}
 	}
-	
-	void moureElements(DirectionalInput dir) {
-//		y++;
-		for (Cotxe cotxe:c) //for de tipus "foreach", alternativa més senzilla que i=0, i<c.length, i++ c[i].moure... cotxe és variable de tipus Cotxe. c una llista. 
-			cotxe.moure(dir);
+
+	private void update() {
+		if (input.getActionDown(Action.PAUSE)) {
+			if (!gamePaused){
+				gamePaused = true;
+				// Menu...
+			}
+			else {
+				gamePaused = false;
+				// Close menu...
+			}
+		}
+		if (!gamePaused) {
+			playerShip.pointCannonAt(input.getMousePosition());
+		}
 	}
-	
-	void repintaPantalla() {
-		f.g.setColor(Color.WHITE);
-		f.g.fillRect(0,0,f.AMPLADA,f.ALÇADA); //rectangle
-		f.g.setColor(Color.RED);
-		//f.g.drawLine(50, 50, 500, 500);
-		//f.g.drawRect(0, 0, f.AMPLADA, f.ALÇADA);
-		for (Cotxe cotxe:c) 
-			cotxe.pintar(f.g);
-		f.repaint(); // obliga la paint a executar-se. veurem el canvi a pantalla
+
+	private void fixedUpdate() {
+		if (!gamePaused) {
+			processPlayerMovement();
+			moureElements(); // moure els objectes de pantalla
+			// detectar col·lisions
+		}
+	}
+
+	private void processPlayerMovement() {
+		playerShip.thrust(input.getDirection(), fixedDeltaTime);
+		if (input.getAction(Action.SHOOT) && (startTime - playerShip.lastShotTime >= 1/playerShip.attackSpeed))
+			bullets.add(playerShip.shoot());
+	}
+
+	private void moureElements() {
+		playerShip.fixedUpdate(fixedDeltaTime);
+		for (Ship enemy:enemies) {
+			enemy.fixedUpdate(fixedDeltaTime);
+		}
+		for (Bullet bullet:bullets) {
+			bullet.move(fixedDeltaTime);
+		}
+	}
+
+	AffineTransform getViewMatrix() {
+		// TODO: Crear càmera o eliminar viewMatrix
+		return new AffineTransform();
 	}
 }
