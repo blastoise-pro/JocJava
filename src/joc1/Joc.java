@@ -8,15 +8,15 @@ import java.util.Random;
 public class Joc {
 	double startTime = System.currentTimeMillis()/1000.0;
 
-	InputManager input = new InputManager();
 	Finestra f;
 
 	Random ran = new Random();
 
 	boolean gamePaused = false;
-	Ship playerShip;
-	List<Ship> enemies = new ArrayList<>();
-	List<Bullet> bullets = new ArrayList<>();
+	List<GameObject> gameObjects = new ArrayList<>();
+	List<PhysicsObject> physicsObjects = new ArrayList<>();
+	List<Collider> colliders = new ArrayList<>();
+	List<GameObject> objectQueue = new ArrayList<>();
 
 	public static void main(String[] args) {
 		Joc j = new Joc();
@@ -25,14 +25,16 @@ public class Joc {
 
 	public Joc () {
 		f = new Finestra(this);
+		Input.initInput();
+		Input input = new Input();
 		f.addKeyListener(input);
 		f.addMouseListener(input);
 	}
 	
 	public void run () {
-		playerShip = new PlayerShip(new Vec2(0, 0));
+		new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
-			enemies.add(new EnemyShip(Vec2.random(f.l, f.r, f.b, f.t)));
+			new EnemyShip(this, Vec2.random(f.l, f.r, f.b, f.t));
 		}
 
 		while (true) {
@@ -53,14 +55,16 @@ public class Joc {
 			Time.updateTimes(frameTime + sleepTime);
 
 			// Guardem Inputs
-			input.updateMousePosition(f);
-			input.updateInputs();
+			Input.updateMousePosition(f);
+			Input.updateInputs();
 
 			update();
+			processNewObjects();
 
 			// Físiques
 			while (Time.unsimulatedTime() >= Time.fixedDeltaTime) {
-				fixedUpdate();
+				fixedUpdate(); // Càlculs i moviments de cada objecte
+				// collider    // Col·lisions (update hitbox + checks)
 				Time.physicsStep();
 			}
 
@@ -70,42 +74,43 @@ public class Joc {
 	}
 
 	private void update() {
-		if (input.getActionDown(Action.PAUSE)) {
+		if (Input.getActionDown(Action.PAUSE)) {
 			if (!gamePaused){
 				gamePaused = true;
+				Time.timeScale = 0;
 				// Menu...
 			}
 			else {
 				gamePaused = false;
+				Time.timeScale = 1;
 				// Close menu...
 			}
 		}
-		if (!gamePaused) {
-			playerShip.pointCannonAt(input.getMousePosition());
+		for (GameObject obj:gameObjects) {
+			obj.update();
 		}
 	}
 
 	private void fixedUpdate() {
-		if (!gamePaused) {
-			processPlayerMovement();
-			moureElements(); // moure els objectes de pantalla
-			// detectar col·lisions
+		for (PhysicsObject obj:physicsObjects) {
+			obj.fixedUpdate();
 		}
 	}
 
-	private void processPlayerMovement() {
-		playerShip.thrust(input.getDirection(), Time.fixedDeltaTime);
-		if (input.getAction(Action.SHOOT) && (startTime - playerShip.lastShotTime >= 1/playerShip.attackSpeed))
-			bullets.add(playerShip.shoot());
+	void addObject(GameObject obj) {
+		System.out.println("Added new object.");
+		objectQueue.add(obj);
 	}
 
-	private void moureElements() {
-		playerShip.fixedUpdate(Time.fixedDeltaTime);
-		for (Ship enemy:enemies) {
-			enemy.fixedUpdate(Time.fixedDeltaTime);
-		}
-		for (Bullet bullet:bullets) {
-			bullet.move(Time.fixedDeltaTime);
+	void processNewObjects() {
+		while (objectQueue.size() > 0) {
+			GameObject next = objectQueue.get(0);
+				gameObjects.add(next);
+				if (next instanceof PhysicsObject)
+					physicsObjects.add((PhysicsObject) next);
+				if (next instanceof Collider)
+					colliders.add((Collider) next);
+				objectQueue.remove(0);
 		}
 	}
 

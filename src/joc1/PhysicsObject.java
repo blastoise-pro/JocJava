@@ -19,10 +19,12 @@ abstract class PhysicsObject extends GameObject {
         speed.Add(force);
     }
 
-    PhysicsObject(Vec2 position, float rotation, Vec2 scale, Vec2 speed) {
-        super(position, rotation, scale);
+    PhysicsObject(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed) {
+        super(j, position, rotation, scale);
         setSpeed(speed);
     }
 
-    abstract void fixedUpdate(double deltaTime);
+    void fixedUpdate() {
+
+    }
 }

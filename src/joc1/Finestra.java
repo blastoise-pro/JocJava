@@ -96,12 +96,8 @@ class Finestra extends Frame {
 		updateViewMatrix();
 		PVMatrix.concatenate(viewMatrix);
 
-		j.playerShip.pintar(g2, PVMatrix);
-		for (Ship ship:j.enemies)
-			ship.pintar(g2, PVMatrix);
-
-		for (Bullet bullet:j.bullets) {
-			bullet.pintar(g2, PVMatrix);
+		for(GameObject obj:j.gameObjects) {
+			obj.pintar(g2, PVMatrix);
 		}
 
 		paint(g);

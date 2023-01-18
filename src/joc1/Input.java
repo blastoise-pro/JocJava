@@ -11,7 +11,7 @@ enum Action {
     MENU_OK, MENU_BACK
 }
 
-class InputManager implements KeyListener, MouseListener {
+class Input implements KeyListener, MouseListener {
     private record Key(int keyCode, boolean isMouse) { }
     private final static int[] keys = {
             KeyEvent.VK_A,      // 0
@@ -27,15 +27,15 @@ class InputManager implements KeyListener, MouseListener {
             MouseEvent.BUTTON1, // 8
             MouseEvent.BUTTON2, // 9
     };
-    private final Map<Action,Key> keyBinds = new HashMap<>();
+    private static final Map<Action,Key> keyBinds = new HashMap<>();
 
-    private final Map<Key, Boolean> lastUpdateKeyState = new HashMap<>();
-    private final Map<Key, Boolean> keyState = new HashMap<>();
-    private final Map<Key, Boolean> keyDown = new HashMap<>();
-    private final DirectionalInput dir = new DirectionalInput();
-    private Vec2 mousePosition = new Vec2();
+    private static final Map<Key, Boolean> lastUpdateKeyState = new HashMap<>();
+    private static final Map<Key, Boolean> keyState = new HashMap<>();
+    private static final Map<Key, Boolean> keyDown = new HashMap<>();
+    private static final DirectionalInput dir = new DirectionalInput();
+    private static Vec2 mousePosition = new Vec2();
 
-    InputManager() {
+    static void initInput() {
         // Creació dels objectes Key
         for (int key:keys) {
             Key keyObj = new Key(key, false);
@@ -65,7 +65,7 @@ class InputManager implements KeyListener, MouseListener {
         keyBinds.put(Action.MENU_BACK, new Key(MouseEvent.BUTTON2, true));
     }
 
-    void updateInputs() {
+    static void updateInputs() {
         keyDown.replaceAll( // La tecla ha sigut pulsada si abans no ho estava, i ara sí.
                 (k, v) -> !lastUpdateKeyState.get(k) && keyState.get(k)
         );
@@ -78,7 +78,7 @@ class InputManager implements KeyListener, MouseListener {
         if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction.DOWN);
     }
 
-    void updateMousePosition(Finestra f) {
+    static void updateMousePosition(Finestra f) {
         Point mousePos = f.getMousePosition();
         if (mousePos == null) {
             return;
@@ -88,23 +88,23 @@ class InputManager implements KeyListener, MouseListener {
         mousePosition = new Vec2(mousePos.x, mousePos.y);
     }
 
-    boolean getActionDown(Action action) {
+    static boolean getActionDown(Action action) {
         return keyDown.get(keyBinds.get(action));
     }
 
-    boolean getAction(Action action) {
+    static boolean getAction(Action action) {
         return keyState.get(keyBinds.get(action));
     }
 
-    Vec2 getDirection() {
+    static Vec2 getDirection() {
         return dir.getDirection();
     }
 
-    Vec2 getRawDirection() {
+    static Vec2 getRawDirection() {
         return dir.getRawDirection();
     }
 
-    Vec2 getMousePosition() {
+    static Vec2 getMousePosition() {
         return mousePosition.clone();
     }
 

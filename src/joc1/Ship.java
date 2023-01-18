@@ -6,6 +6,7 @@ import java.awt.geom.AffineTransform;
 abstract class Ship extends PhysicsObject {
     float maxSpeed;
     float thrustPower;
+    float turningHelp = 0.03f;
     float airResistance;
     Direction lookingAt;
 
@@ -16,7 +17,7 @@ abstract class Ship extends PhysicsObject {
 
     float bulletSpeed;
     float attackSpeed;
-    double lastShotTime = 0;
+    double lastShotTime = -1000;
 
     Polygon shipShape;
     Shape hitbox;
@@ -45,10 +46,10 @@ abstract class Ship extends PhysicsObject {
         this.cannonDir = cannonDir.clone();
     }
 
-    Ship(Vec2 position, float rotation, Vec2 scale, Vec2 speed,
+    Ship(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed,
          float maxSpeed, float thrustPower, float airResistance, Direction lookingAt, Vec2 cannonOffset,
          Vec2 cannonDir, float cannonLength, float bulletSpeed, float attackSpeed, Polygon shipShape) {
-        super(position, rotation, scale, speed);
+        super(j, position, rotation, scale, speed);
 
         this.maxSpeed = maxSpeed;
         this.thrustPower = thrustPower;
@@ -67,35 +68,27 @@ abstract class Ship extends PhysicsObject {
         updateHitbox();
     }
 
-    void update() {
-
-    }
-
-    void fixedUpdate(double deltaTime) {
-        translate(getSpeed().scale((float) deltaTime));
-        applyForce(getSpeed().normalized().scale(- maxSpeed * airResistance).scale((float) deltaTime));
+    void fixedUpdate() {
+        translate(getSpeed().scale((float) Time.deltaTime()));
+        applyForce(getSpeed().normalized().scale(- maxSpeed * airResistance).scale((float) Time.deltaTime()));
         cannonPos = getPosition().add(cannonOffset);
 
         updateHitbox();
     }
 
-    void thrust(Vec2 dir, double deltaTime) {
+    void thrust(Vec2 dir) {
         float parallelSpeed = dir.dot(getSpeed());
         float boostedThrust = thrustPower;
         if (parallelSpeed < 0) {
-            boostedThrust -= thrustPower*parallelSpeed*0.03;
+            boostedThrust -= thrustPower*parallelSpeed*turningHelp;
         }
-        applyForce(dir.scale(boostedThrust).scale((float) deltaTime));
+        applyForce(dir.scale(boostedThrust).scale((float) Time.deltaTime()));
         setSpeed(getSpeed().clamp(0, maxSpeed));
     }
 
     void pointCannonAt(Vec2 pos) {
         cannonDir = pos.sub(cannonPos).normalized();
     }
-
-    abstract Bullet shoot();
-
-    public abstract void pintar(Graphics2D g, AffineTransform PVMatrix);
 
     private void updateHitbox() {
         hitbox = getModelMatrix().createTransformedShape(shipShape);

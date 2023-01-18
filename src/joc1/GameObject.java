@@ -1,8 +1,10 @@
 package joc1;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 abstract class GameObject {
+    Joc j;
     private Vec2 position;
     private float rotation;
     private Vec2 scale;
@@ -47,13 +49,19 @@ abstract class GameObject {
         scale.cScale(scales);
     }
 
-    GameObject(Vec2 position, float rotation, Vec2 scale) {
+    GameObject(Joc j, Vec2 position, float rotation, Vec2 scale) {
         setPosition(position);
         setRotation(rotation);
         setScale(scale);
+        this.j = j;
+        j.addObject(this);
     }
 
-    abstract void update();
+    void update() {
+
+    }
+
+    public abstract void pintar(Graphics2D g, AffineTransform PVMatrix);
 
     AffineTransform getModelMatrix() {
         AffineTransform model = AffineTransform.getTranslateInstance(position.x, position.y);

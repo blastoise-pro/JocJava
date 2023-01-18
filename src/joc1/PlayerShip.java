@@ -7,11 +7,28 @@ class PlayerShip extends Ship{
     private final static int[] xPoints = {-2, -2,  2};
     private final static int[] yPoints = {-1, 1, -1};
 
-    PlayerShip(Vec2 pos) {
-        super(pos, 0, new Vec2(1, 1), new Vec2(), 60, 150, 0.9f, Direction.RIGHT, new Vec2(),
+    PlayerShip(Joc j, Vec2 position) {
+        super(j, position, 0, new Vec2(1, 1), new Vec2(), 60, 150, 0.9f, Direction.RIGHT, new Vec2(),
                 Direction.RIGHT.vector(), 2, 100, 1f,
                 new Polygon(xPoints, yPoints, xPoints.length));
         hitbox = shipShape;
+    }
+
+    void update() {
+        pointCannonAt(Input.getMousePosition());
+        if (Input.getAction(Action.SHOOT) && (Time.time() - lastShotTime >= 1/attackSpeed))
+            shoot();
+    }
+
+    void fixedUpdate() {
+        thrust(Input.getDirection());
+
+        super.fixedUpdate();
+    }
+
+    void shoot() {
+        lastShotTime = Time.time();
+        new BasicBullet(j, getCannonPos(), getCannonDir().scale(bulletSpeed), true);
     }
 
     @Override
@@ -27,10 +44,5 @@ class PlayerShip extends Ship{
         float[] cannonPoints = {cannonPos.x, cannonPos.y, cannonPos.x + cannonDR.x, cannonPos.y + cannonDR.y};
         PVMatrix.transform(cannonPoints, 0, cannonPoints, 0, cannonPoints.length/2);
         g.drawLine((int) cannonPoints[0], (int) cannonPoints[1], (int) cannonPoints[2], (int) cannonPoints[3]);
-    }
-
-    Bullet shoot() {
-        lastShotTime = System.currentTimeMillis()/1000.0;
-        return new BasicBullet(getCannonPos(), getCannonDir().scale(bulletSpeed), true);
     }
 }

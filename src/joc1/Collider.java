@@ -5,6 +5,8 @@ import java.awt.*;
 interface Collider {
     Shape getCollider();
 
+    void updateCollider();
+
     String getLabel();
 
     void onColliderEnter(Collider other);
