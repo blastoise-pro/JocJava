@@ -6,11 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 public class Joc {
-	final double targetFrameTime = 1 / 200.0;
-	final double fixedDeltaTime = 1 / 200.0;
 	double startTime = System.currentTimeMillis()/1000.0;
-	double deltaTime = 0;
-	double unsimulatedTime = 0;
 
 	InputManager input = new InputManager();
 	Finestra f;
@@ -42,9 +38,9 @@ public class Joc {
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
 			double frameTime = currentTime - startTime;
-			if (frameTime < targetFrameTime) {
+			if (frameTime < Time.targetFrameTime) {
 				try {
-					Thread.sleep((long) ((targetFrameTime - frameTime) * 1000));
+					Thread.sleep((long) ((Time.targetFrameTime - frameTime) * 1000));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -53,9 +49,8 @@ public class Joc {
 			double sleepTime = startTime - currentTime;
 			// Per què necessitem mesurar el temps de "descans" en comptes d'utilitzar directament targetFrameTime - frameTime?
 			// Perquè la conversió a long provoca pèrdues de precissió importants, provocant que el deltaTime
-			// es calculi incorrectament i les físiques es descontrolin.
-			deltaTime = frameTime + sleepTime;
-			unsimulatedTime += deltaTime;
+			// es calculi incorrectament i les físiques es descontrolin. També Thread.sleep() dorm el temps que li dona la gana.
+			Time.updateTimes(frameTime + sleepTime);
 
 			// Guardem Inputs
 			input.updateMousePosition(f);
@@ -64,9 +59,9 @@ public class Joc {
 			update();
 
 			// Físiques
-			while (unsimulatedTime >= fixedDeltaTime) {
+			while (Time.unsimulatedTime() >= Time.fixedDeltaTime) {
 				fixedUpdate();
-				unsimulatedTime -= fixedDeltaTime;
+				Time.physicsStep();
 			}
 
 			// Render
@@ -99,18 +94,18 @@ public class Joc {
 	}
 
 	private void processPlayerMovement() {
-		playerShip.thrust(input.getDirection(), fixedDeltaTime);
+		playerShip.thrust(input.getDirection(), Time.fixedDeltaTime);
 		if (input.getAction(Action.SHOOT) && (startTime - playerShip.lastShotTime >= 1/playerShip.attackSpeed))
 			bullets.add(playerShip.shoot());
 	}
 
 	private void moureElements() {
-		playerShip.fixedUpdate(fixedDeltaTime);
+		playerShip.fixedUpdate(Time.fixedDeltaTime);
 		for (Ship enemy:enemies) {
-			enemy.fixedUpdate(fixedDeltaTime);
+			enemy.fixedUpdate(Time.fixedDeltaTime);
 		}
 		for (Bullet bullet:bullets) {
-			bullet.move(fixedDeltaTime);
+			bullet.move(Time.fixedDeltaTime);
 		}
 	}
 

@@ -72,10 +72,8 @@ abstract class Ship extends PhysicsObject {
     }
 
     void fixedUpdate(double deltaTime) {
-        setPosition(getPosition().add(getSpeed().scale((float) deltaTime)));
         translate(getSpeed().scale((float) deltaTime));
-        // speed.Scale((float) (1 - airResistance*deltaTime));
-        applyForce(getSpeed().scale(airResistance).scale((float) deltaTime).scale(-1));
+        applyForce(getSpeed().normalized().scale(- maxSpeed * airResistance).scale((float) deltaTime));
         cannonPos = getPosition().add(cannonOffset);
 
         updateHitbox();
