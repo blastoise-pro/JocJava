@@ -9,6 +9,8 @@ abstract class GameObject {
     private float rotation;
     private Vec2 scale;
 
+    double instatiationTime;
+
     Vec2 getPosition() {
         return position.clone();
     }
@@ -57,7 +59,15 @@ abstract class GameObject {
         j.addObject(this);
     }
 
+    void start() {
+
+    }
+
     void update() {
+
+    }
+
+    void fixedUpdate() {
 
     }
 

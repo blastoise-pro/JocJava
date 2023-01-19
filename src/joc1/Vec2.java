@@ -72,7 +72,7 @@ public class Vec2 implements Cloneable{
 
     public Vec2 clamp(float min, float max) {
         float norm = norm();
-        if (norm == 0)
+        if (norm2() == 0)
             return new Vec2(x, y);
         if (norm > max) {
             return new Vec2(x * max/norm, y * max/norm);

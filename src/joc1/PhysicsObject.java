@@ -23,8 +23,4 @@ abstract class PhysicsObject extends GameObject {
         super(j, position, rotation, scale);
         setSpeed(speed);
     }
-
-    void fixedUpdate() {
-
-    }
 }

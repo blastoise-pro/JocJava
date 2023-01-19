@@ -87,7 +87,10 @@ abstract class Ship extends PhysicsObject {
     }
 
     void pointCannonAt(Vec2 pos) {
-        cannonDir = pos.sub(cannonPos).normalized();
+        Vec2 dir = pos.sub(cannonPos).normalized();
+        if (dir.norm2() == 0)
+            return;
+        cannonDir = dir;
     }
 
     private void updateHitbox() {

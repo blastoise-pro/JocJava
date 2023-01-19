@@ -8,7 +8,7 @@ class PlayerShip extends Ship{
     private final static int[] yPoints = {-1, 1, -1};
 
     PlayerShip(Joc j, Vec2 position) {
-        super(j, position, 0, new Vec2(1, 1), new Vec2(), 60, 150, 0.9f, Direction.RIGHT, new Vec2(),
+        super(j, position, 0, new Vec2(1, 1), new Vec2(), 40, 100, 0.9f, Direction.RIGHT, new Vec2(),
                 Direction.RIGHT.vector(), 2, 100, 1f,
                 new Polygon(xPoints, yPoints, xPoints.length));
         hitbox = shipShape;

@@ -84,8 +84,9 @@ class Input implements KeyListener, MouseListener {
             return;
         }
         f.updateInversePVMatrix();
-        f.inversePVMatrix.transform(mousePos, mousePos);
-        mousePosition = new Vec2(mousePos.x, mousePos.y);
+        float[] pospoint = {mousePos.x, mousePos.y};
+        f.inversePVMatrix.transform(pospoint, 0, pospoint, 0, 1);
+        mousePosition = new Vec2(pospoint[0], pospoint[1]);
     }
 
     static boolean getActionDown(Action action) {

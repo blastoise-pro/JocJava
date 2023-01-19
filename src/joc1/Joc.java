@@ -1,22 +1,21 @@
 package joc1;
 
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Joc {
 	double startTime = System.currentTimeMillis()/1000.0;
 
-	Finestra f;
+	final Finestra f;
 
-	Random ran = new Random();
+	final Random ran = new Random();
+
+	final List<GameObject> gameObjects = new ArrayList<>();
+	final List<Collider> colliders = new ArrayList<>();
+	final Queue<GameObject> instatiateQueue = new ArrayDeque<>();
+	final Queue<GameObject> destroyQueue = new ArrayDeque<>();
 
 	boolean gamePaused = false;
-	List<GameObject> gameObjects = new ArrayList<>();
-	List<PhysicsObject> physicsObjects = new ArrayList<>();
-	List<Collider> colliders = new ArrayList<>();
-	List<GameObject> objectQueue = new ArrayList<>();
 
 	public static void main(String[] args) {
 		Joc j = new Joc();
@@ -32,6 +31,7 @@ public class Joc {
 	}
 	
 	public void run () {
+		new Background(this, "assets/BG/web_first_images_release.png");
 		new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
 			new EnemyShip(this, Vec2.random(f.l, f.r, f.b, f.t));
@@ -65,6 +65,8 @@ public class Joc {
 			while (Time.unsimulatedTime() >= Time.fixedDeltaTime) {
 				fixedUpdate(); // Càlculs i moviments de cada objecte
 				// collider    // Col·lisions (update hitbox + checks)
+
+				processNewObjects();
 				Time.physicsStep();
 			}
 
@@ -92,26 +94,48 @@ public class Joc {
 	}
 
 	private void fixedUpdate() {
-		for (PhysicsObject obj:physicsObjects) {
+		for (GameObject obj:gameObjects) {
 			obj.fixedUpdate();
 		}
 	}
 
 	void addObject(GameObject obj) {
 		System.out.println("Added new object.");
-		objectQueue.add(obj);
+		instatiateQueue.add(obj);
+	}
+
+	void destroy(GameObject obj) {
+		System.out.println("Destroying object...");
+		destroyQueue.add(obj);
 	}
 
 	void processNewObjects() {
-		while (objectQueue.size() > 0) {
-			GameObject next = objectQueue.get(0);
+		while (!instatiateQueue.isEmpty()) {
+			GameObject next = instatiateQueue.remove();
+			synchronized (gameObjects){
 				gameObjects.add(next);
-				if (next instanceof PhysicsObject)
-					physicsObjects.add((PhysicsObject) next);
-				if (next instanceof Collider)
-					colliders.add((Collider) next);
-				objectQueue.remove(0);
+			}
+			if (next instanceof Collider) {
+				colliders.add((Collider) next);
+			}
+			next.start();
 		}
+
+		while (!destroyQueue.isEmpty()) {
+			GameObject next = destroyQueue.remove();
+			synchronized (gameObjects){
+				gameObjects.remove(next);
+			}
+			if (next instanceof Collider)
+				colliders.remove(next);
+		}
+
+		/*
+		while (!destroyQueue.isEmpty()) {
+			gameObjects.removeAll(destroyQueue);
+			colliders.removeAll(destroyQueue);
+		}
+		 */
 	}
 
 	AffineTransform getViewMatrix() {

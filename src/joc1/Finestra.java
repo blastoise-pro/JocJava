@@ -96,8 +96,10 @@ class Finestra extends Frame {
 		updateViewMatrix();
 		PVMatrix.concatenate(viewMatrix);
 
-		for(GameObject obj:j.gameObjects) {
-			obj.pintar(g2, PVMatrix);
+		synchronized (j.gameObjects){
+			for (GameObject obj : j.gameObjects) {
+				obj.pintar(g2, PVMatrix);
+			}
 		}
 
 		paint(g);
