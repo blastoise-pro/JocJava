@@ -5,6 +5,7 @@ import java.awt.geom.AffineTransform;
 
 abstract class Bullet extends PhysicsObject {
     boolean friendly;
+    double instatiationTime;
     float lifetime;
 
     Polygon bulletShape;

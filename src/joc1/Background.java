@@ -11,7 +11,7 @@ class Background extends GameObject {
     BufferedImage bg = null;
 
     Background(Joc j, String path) {
-        super(j, new Vec2(-50, -50), 0, new Vec2(1, 1));
+        super(j, new Vec2(0, 0), 0, new Vec2(.01f, .01f));
         try {
             bg = ImageIO.read(new File(path));
         }
@@ -19,6 +19,8 @@ class Background extends GameObject {
             e.printStackTrace();
             j.destroy(this);
         }
+        setPosition(new Vec2(j.f.l, j.f.b));
+        setScale(new Vec2((j.f.r - j.f.l)/bg.getWidth(), (j.f.t - j.f.b)/bg.getHeight()));
     }
 
     public void pintar(Graphics2D g, AffineTransform PVMatrix) {
