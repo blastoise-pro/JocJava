@@ -15,6 +15,8 @@ public class Joc {
 	final Queue<GameObject> instatiateQueue = new ArrayDeque<>();
 	final Queue<GameObject> destroyQueue = new ArrayDeque<>();
 
+	Camera camera;
+	PlayerShip playerShip;
 	boolean gamePaused = false;
 
 	public static void main(String[] args) {
@@ -31,8 +33,10 @@ public class Joc {
 	}
 	
 	public void run () {
+		camera = new Camera(this, new Vec2(100, 0));
+		f.updateInversePVMatrix();
 		new Background(this, "assets/BG/web_first_images_release.png");
-		new PlayerShip(this, new Vec2(0, 0));
+		playerShip = new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
 			new EnemyShip(this, Vec2.random(f.l, f.r, f.b, f.t));
 		}
@@ -70,7 +74,10 @@ public class Joc {
 				Time.physicsStep();
 			}
 
+			lateUpdate();
+
 			// Render
+			render();
 			f.repaint(); // repintar la pantalla
 		}
 	}
@@ -96,6 +103,12 @@ public class Joc {
 	private void fixedUpdate() {
 		for (GameObject obj:gameObjects) {
 			obj.fixedUpdate();
+		}
+	}
+
+	private void lateUpdate() {
+		for (GameObject obj:gameObjects) {
+			obj.lateUpdate();
 		}
 	}
 
@@ -138,8 +151,7 @@ public class Joc {
 		 */
 	}
 
-	AffineTransform getViewMatrix() {
-		// TODO: Crear càmera o eliminar viewMatrix
-		return new AffineTransform();
+	private void render() {
+
 	}
 }

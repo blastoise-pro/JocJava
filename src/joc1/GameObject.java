@@ -69,6 +69,10 @@ abstract class GameObject {
 
     }
 
+    void lateUpdate() {
+
+    }
+
     public abstract void pintar(Graphics2D g, AffineTransform PVMatrix);
 
     AffineTransform getModelMatrix() {

@@ -9,7 +9,7 @@ class PlayerShip extends Ship{
 
     PlayerShip(Joc j, Vec2 position) {
         super(j, position, 0, new Vec2(1, 1), new Vec2(), 40, 100, 0.9f, Direction.RIGHT, new Vec2(),
-                Direction.RIGHT.vector(), 2, 100, 10f,
+                Direction.RIGHT.vector(), 2, 100, 1f,
                 new Polygon(xPoints, yPoints, xPoints.length));
         hitbox = shipShape;
     }

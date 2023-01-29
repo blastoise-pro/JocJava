@@ -18,7 +18,6 @@ class Finestra extends Frame {
 	// de la finestra
 	float l = -100, r = 100, t, b;
 	AffineTransform projectionMatrix;
-	AffineTransform viewMatrix;
 	AffineTransform inversePVMatrix;
 	
 	Finestra(Joc joc) {
@@ -53,8 +52,6 @@ class Finestra extends Frame {
 		});
 
 		updateProjectionMatrix();
-		updateViewMatrix();
-		updateInversePVMatrix();
 	}
 
 	private void updateProjectionMatrix() {
@@ -68,14 +65,9 @@ class Finestra extends Frame {
 		System.out.println("winHeight: " + winHeight + " winWidth: " + winWidth);
 	}
 
-	private void updateViewMatrix() {
-		// Update view matrix for new camera position
-		viewMatrix = j.getViewMatrix();
-	}
-
 	void updateInversePVMatrix() {
 		AffineTransform PVMatrix = new AffineTransform(projectionMatrix);
-		PVMatrix.concatenate(viewMatrix);
+		PVMatrix.concatenate(j.camera.getViewMatrix());
 		try {
 			inversePVMatrix = PVMatrix.createInverse();
 		}
@@ -93,8 +85,8 @@ class Finestra extends Frame {
 		g2.fillRect(0, 0, winWidth, winHeight);
 
 		AffineTransform PVMatrix = new AffineTransform(projectionMatrix);
-		updateViewMatrix();
-		PVMatrix.concatenate(viewMatrix);
+		j.camera.updateViewMatrix();
+		PVMatrix.concatenate(j.camera.getViewMatrix());
 
 		synchronized (j.gameObjects){
 			for (GameObject obj : j.gameObjects) {
