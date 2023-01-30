@@ -34,6 +34,7 @@ class Input implements KeyListener, MouseListener {
     private static final Map<Key, Boolean> keyDown = new HashMap<>();
     private static final DirectionalInput dir = new DirectionalInput();
     private static Vec2 mousePosition = new Vec2();
+    private static Vec2 windowMousePosition = new Vec2();
 
     static void initInput() {
         // Creació dels objectes Key
@@ -78,15 +79,16 @@ class Input implements KeyListener, MouseListener {
         if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction.DOWN);
     }
 
-    static void updateMousePosition(Finestra f) {
+    static void updateMousePosition(Finestra f, Camera c) {
         Point mousePos = f.getMousePosition();
         if (mousePos == null) {
             return;
         }
-        f.updateInversePVMatrix();
+        c.updateInversePVMatrix();
         float[] pospoint = {mousePos.x, mousePos.y};
-        f.inversePVMatrix.transform(pospoint, 0, pospoint, 0, 1);
+        c.inversePVMatrix.transform(pospoint, 0, pospoint, 0, 1);
         mousePosition = new Vec2(pospoint[0], pospoint[1]);
+        windowMousePosition = new Vec2((float) mousePos.x/f.winWidth, (float) (f.winHeight - mousePos.y)/f.winHeight);
     }
 
     static boolean getActionDown(Action action) {
@@ -107,6 +109,10 @@ class Input implements KeyListener, MouseListener {
 
     static Vec2 getMousePosition() {
         return mousePosition.clone();
+    }
+
+    static Vec2 getWindowMousePosition() {
+        return windowMousePosition.clone();
     }
 
     @Override

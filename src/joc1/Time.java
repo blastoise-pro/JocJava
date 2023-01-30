@@ -4,6 +4,7 @@ final class Time {
     static double targetFrameTime = 1 / 200.0;
     static double fixedDeltaTime = 1 / 200.0;
 
+    static boolean callingFromFixedUpdate = false;
     static double timeScale = 1;
     private static double unscaledDeltaTime = 0;
     private static double unscaledTime = 0;
@@ -11,6 +12,7 @@ final class Time {
     private static double deltaTime = 0;
     private static double time = 0;
     private static double unsimulatedTime = 0;
+
 
     static double targetFrameTime() {
         return targetFrameTime;
@@ -34,6 +36,9 @@ final class Time {
     }
 
     static double deltaTime() {
+        if (callingFromFixedUpdate) {
+            return fixedDeltaTime;
+        }
         return deltaTime;
     }
 

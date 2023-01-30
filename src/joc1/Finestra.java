@@ -5,31 +5,25 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 
 class Finestra extends Frame {
 	private final Joc j;
-	Image im;
-	Graphics2D g2;
+	Graphics2D fGraphics;
 	int winHeight = 600, winWidth = 1000;
-	// Parametres del "frustum" de la projecció ortogràfica (quines coordenades a view space són visibles)
-	// Només necessitem els límits esquerre i dret, el superior i inferior es calculen respectant l'aspect ratio
-	// de la finestra
-	float l = -100, r = 100, t, b;
-	AffineTransform projectionMatrix;
-	AffineTransform inversePVMatrix;
-	
+
 	Finestra(Joc joc) {
 		super("Joc");
 		setSize(winWidth, winHeight);
 		setVisible(true);
+		fGraphics = (Graphics2D) getGraphics();
+		fGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		fGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 		j = joc;
 
-		im = createImage(winWidth, winHeight);
-		g2 = (Graphics2D)im.getGraphics(); //és el graphics de la imatge, no de la pantalla!
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		// g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+		j.bufferImage = createImage(winWidth, winHeight);
+		j.g2buff = (Graphics2D)j.bufferImage.getGraphics(); //és el graphics de la imatge, no de la pantalla!
+		j.g2buff.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		j.g2buff.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 		// Per dibuixar amb subpixel accuracy
 
 		addWindowListener(new WindowAdapter() {
@@ -44,56 +38,22 @@ class Finestra extends Frame {
 			public void componentResized(ComponentEvent e) {
 				winHeight = e.getComponent().getHeight();
 				winWidth = e.getComponent().getWidth();
-				im = createImage(winWidth, winHeight);
-				g2 = (Graphics2D)im.getGraphics();
+				fGraphics = (Graphics2D) getGraphics(); // Aquest objecte canvia al canviar el tamany de la finestra
+				fGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				fGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+				j.bufferImage = createImage(winWidth, winHeight);
+				j.g2buff = (Graphics2D)j.bufferImage.getGraphics();
 
-				updateProjectionMatrix();
+				j.camera.updateProjectionMatrix();
 			}
 		});
-
-		updateProjectionMatrix();
-	}
-
-	private void updateProjectionMatrix() {
-		float aspectRatio = (float) winHeight/winWidth;
-		t =  (r-l)*aspectRatio/2;
-		b = -(r-l)*aspectRatio/2;
-		projectionMatrix = new AffineTransform();
-		projectionMatrix.translate(-winWidth*l/(r-l), winHeight*t/(t-b));
-		projectionMatrix.scale(winWidth/(r-l), -winHeight/(t-b));
-		System.out.println("t: " + t + " b: " + b);
-		System.out.println("winHeight: " + winHeight + " winWidth: " + winWidth);
-	}
-
-	void updateInversePVMatrix() {
-		AffineTransform PVMatrix = new AffineTransform(projectionMatrix);
-		PVMatrix.concatenate(j.camera.getViewMatrix());
-		try {
-			inversePVMatrix = PVMatrix.createInverse();
-		}
-		catch (NoninvertibleTransformException e) {
-			throw new AssertionError("Transformació no té inversa"); // No pot passar
-		}
 	}
 	
 	public void paint(Graphics g) { // la crida el sistema de manera implícita
-		g.drawImage(im,0,0,null);
+		g.drawImage(j.bufferImage,0,0,null);
 	}
 
 	public void update(Graphics g){
-		g2.setColor(Color.black);
-		g2.fillRect(0, 0, winWidth, winHeight);
-
-		AffineTransform PVMatrix = new AffineTransform(projectionMatrix);
-		j.camera.updateViewMatrix();
-		PVMatrix.concatenate(j.camera.getViewMatrix());
-
-		synchronized (j.gameObjects){
-			for (GameObject obj : j.gameObjects) {
-				obj.pintar(g2, PVMatrix);
-			}
-		}
-
 		paint(g);
 	}
 }

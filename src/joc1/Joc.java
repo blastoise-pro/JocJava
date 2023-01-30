@@ -1,12 +1,16 @@
 package joc1;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.*;
+import java.util.List;
 
 public class Joc {
 	double startTime = System.currentTimeMillis()/1000.0;
 
-	final Finestra f;
+	private final Finestra f;
+	Image bufferImage;
+	Graphics2D g2buff;
 
 	final Random ran = new Random();
 
@@ -33,12 +37,12 @@ public class Joc {
 	}
 	
 	public void run () {
-		camera = new Camera(this, new Vec2(100, 0));
-		f.updateInversePVMatrix();
+		camera = new Camera(this, new Vec2(), f);
+
 		new Background(this, "assets/BG/web_first_images_release.png");
 		playerShip = new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
-			new EnemyShip(this, Vec2.random(f.l, f.r, f.b, f.t));
+			new EnemyShip(this, Vec2.random(camera.l, camera.r, camera.b, camera.t));
 		}
 
 		while (true) {
@@ -58,27 +62,41 @@ public class Joc {
 			// es calculi incorrectament i les físiques es descontrolin. També Thread.sleep() dorm el temps que li dona la gana.
 			Time.updateTimes(frameTime + sleepTime);
 
+			System.out.println("DeltaTime: " + Time.deltaTime());
+			System.out.println("RealDeltaTime: " + Time.unscaledDeltaTime());
+			System.out.println("Time: " + Time.time());
+			System.out.println("RealTime: " + Time.unscaledTime());
+
 			// Guardem Inputs
-			Input.updateMousePosition(f);
+			Input.updateMousePosition(f, camera);
 			Input.updateInputs();
 
+			// Lògica
 			update();
+
 			processNewObjects();
 
 			// Físiques
+			int steps = 0;
+			Time.callingFromFixedUpdate = true;
 			while (Time.unsimulatedTime() >= Time.fixedDeltaTime) {
 				fixedUpdate(); // Càlculs i moviments de cada objecte
 				// collider    // Col·lisions (update hitbox + checks)
 
 				processNewObjects();
 				Time.physicsStep();
+				steps++;
 			}
+			Time.callingFromFixedUpdate = false;
+			System.out.println("Physics steps taken: " + steps);
+			System.out.println("Unsimulated time: " + Time.unsimulatedTime());
 
+			// Lògica (principalment càmera)
 			lateUpdate();
 
 			// Render
 			render();
-			f.repaint(); // repintar la pantalla
+			System.out.println("\n\n");
 		}
 	}
 
@@ -125,9 +143,7 @@ public class Joc {
 	void processNewObjects() {
 		while (!instatiateQueue.isEmpty()) {
 			GameObject next = instatiateQueue.remove();
-			synchronized (gameObjects){
-				gameObjects.add(next);
-			}
+			gameObjects.add(next);
 			if (next instanceof Collider) {
 				colliders.add((Collider) next);
 			}
@@ -136,9 +152,7 @@ public class Joc {
 
 		while (!destroyQueue.isEmpty()) {
 			GameObject next = destroyQueue.remove();
-			synchronized (gameObjects){
-				gameObjects.remove(next);
-			}
+			gameObjects.remove(next);
 			if (next instanceof Collider)
 				colliders.remove(next);
 		}
@@ -152,6 +166,17 @@ public class Joc {
 	}
 
 	private void render() {
+		g2buff.setColor(Color.black);
+		g2buff.fillRect(0, 0, f.winWidth, f.winHeight);
 
+		AffineTransform PVMatrix = new AffineTransform(camera.projectionMatrix);
+		camera.updateViewMatrix();
+		PVMatrix.concatenate(camera.viewMatrix);
+
+		for (GameObject obj : gameObjects) {
+			obj.pintar(g2buff, PVMatrix);
+		}
+
+		f.update(f.fGraphics);
 	}
 }

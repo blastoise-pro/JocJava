@@ -19,8 +19,8 @@ class Background extends GameObject {
             e.printStackTrace();
             j.destroy(this);
         }
-        setPosition(new Vec2(j.f.l, j.f.b));
-        setScale(new Vec2((j.f.r - j.f.l)/bg.getWidth(), (j.f.t - j.f.b)/bg.getHeight()));
+        setPosition(new Vec2(j.camera.l, j.camera.t));
+        setScale(new Vec2((j.camera.r - j.camera.l)/bg.getWidth(), -(j.camera.t - j.camera.b)/bg.getHeight()));
     }
 
     public void pintar(Graphics2D g, AffineTransform PVMatrix) {
