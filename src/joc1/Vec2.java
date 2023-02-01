@@ -99,6 +99,10 @@ public class Vec2 implements Cloneable{
         }
     }
 
+    public static Vec2 lerp(Vec2 a, Vec2 b, float t) {
+        return a.add(b.sub(a).scale(t));
+    }
+
     /**
      * Create a random vector with components x and y between [0,xBound) and [0, yBound) respectively
      * @param xBound (Exclusive) maximum x value
