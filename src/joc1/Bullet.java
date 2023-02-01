@@ -2,12 +2,19 @@ package joc1;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-abstract class Bullet extends PhysicsObject {
+abstract class Bullet extends PhysicsObject implements Collider {
     boolean friendly;
     double instatiationTime;
     float lifetime;
 
+    private final static String labelF = "bulletF";
+    private final static String labelE = "bulletE";
+    private final static Set<String> collisionMask = new HashSet<>(List.of(labelF, labelE));
     Polygon bulletShape;
     Shape hitbox;
 
@@ -17,14 +24,13 @@ abstract class Bullet extends PhysicsObject {
         this.lifetime = lifetime;
 
         this.bulletShape = bulletShape;
-        updateHitbox();
+        updateCollider();
     }
 
     void start() {
         instatiationTime = Time.time();
     }
 
-    @Override
     void fixedUpdate() {
         if (lifetime != 0 && Time.time() - instatiationTime >= lifetime) {
             j.destroy(this);
@@ -33,10 +39,46 @@ abstract class Bullet extends PhysicsObject {
 
         translate(getSpeed().scale((float) Time.deltaTime()));
 
-        updateHitbox();
+        updateCollider();
     }
 
-    private void updateHitbox() {
+    public void onColliderEnter(Collider other) {
+        if (friendly && other.getLabel().equals("player")) {
+            return;
+        }
+
+        j.destroy(this);
+    }
+
+    public void onColliderExit(Collider other) {
+
+    }
+
+    @Override
+    public Shape getCollider() {
+        return hitbox;
+    }
+
+    @Override
+    public void updateCollider() {
         hitbox = getModelMatrix().createTransformedShape(bulletShape);
+    }
+
+    @Override
+    public String getLabel() {
+        if (friendly) {
+            return labelF;
+        }
+        return labelE;
+    }
+
+    @Override
+    public Set<String> getCollisionMask() {
+        return collisionMask;
+    }
+
+    @Override
+    public boolean colliderIsActive() {
+        return !destroying;
     }
 }

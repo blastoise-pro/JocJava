@@ -8,6 +8,7 @@ abstract class GameObject {
     private Vec2 position;
     private float rotation;
     private Vec2 scale;
+    boolean destroying = false;
 
     Vec2 getPosition() {
         return position.clone();

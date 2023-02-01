@@ -3,12 +3,14 @@ package joc1;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 
-abstract class Ship extends PhysicsObject {
+abstract class Ship extends PhysicsObject implements Collider {
+    float maxHP;
+    float HP;
+
     float maxSpeed;
     float thrustPower;
     float turningHelp = 0.03f;
     float airResistance;
-    Direction lookingAt;
 
     private Vec2 cannonOffset;
     private Vec2 cannonPos;
@@ -54,7 +56,6 @@ abstract class Ship extends PhysicsObject {
         this.maxSpeed = maxSpeed;
         this.thrustPower = thrustPower;
         this.airResistance = airResistance;
-        this.lookingAt = lookingAt;
 
         setCannonOffset(cannonOffset);
         setCannonPos(getPosition().add(cannonOffset));
@@ -65,7 +66,7 @@ abstract class Ship extends PhysicsObject {
         this.attackSpeed = attackSpeed;
 
         this.shipShape = shipShape;
-        updateHitbox();
+        updateCollider();
     }
 
     void fixedUpdate() {
@@ -73,7 +74,7 @@ abstract class Ship extends PhysicsObject {
         applyForce(getSpeed().normalized().scale(- maxSpeed * airResistance).scale((float) Time.deltaTime()));
         cannonPos = getPosition().add(cannonOffset);
 
-        updateHitbox();
+        updateCollider();
     }
 
     void thrust(Vec2 dir) {
@@ -93,11 +94,22 @@ abstract class Ship extends PhysicsObject {
         cannonDir = dir;
     }
 
-    private void updateHitbox() {
+    AffineTransform getCannonModelMatrix() {
+        return AffineTransform.getTranslateInstance(cannonOffset.x, cannonOffset.y);
+    }
+
+    @Override
+    public Shape getCollider() {
+        return hitbox;
+    }
+
+    @Override
+    public void updateCollider() {
         hitbox = getModelMatrix().createTransformedShape(shipShape);
     }
 
-    AffineTransform getCannonModelMatrix() {
-        return AffineTransform.getTranslateInstance(cannonOffset.x, cannonOffset.y);
+    @Override
+    public boolean colliderIsActive() {
+        return !destroying;
     }
 }

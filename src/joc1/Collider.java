@@ -1,6 +1,7 @@
 package joc1;
 
 import java.awt.*;
+import java.util.Set;
 
 interface Collider {
     Shape getCollider();
@@ -8,6 +9,10 @@ interface Collider {
     void updateCollider();
 
     String getLabel();
+
+    Set<String> getCollisionMask();
+
+    boolean colliderIsActive();
 
     void onColliderEnter(Collider other);
 

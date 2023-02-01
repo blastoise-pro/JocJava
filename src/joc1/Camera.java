@@ -10,6 +10,7 @@ class Camera extends GameObject {
     // Només necessitem els límits esquerre i dret, el superior i inferior es calculen respectant l'aspect ratio
     // de la finestra
     float l = -100, r = 100, t, b;
+    float aspectRatio;
     AffineTransform viewMatrix;
     AffineTransform projectionMatrix;
     AffineTransform inversePVMatrix;
@@ -25,10 +26,10 @@ class Camera extends GameObject {
 
     void lateUpdate() {
         Vec2 screenVector = Input.getWindowMousePosition();
-        screenVector.x -= 0.5;
-        screenVector.y -= 0.5;
-        Vec2 objective = j.playerShip.getPosition().add(screenVector.scale(100));
-        setPosition(Vec2.lerp(getPosition(), objective, 0.5f));
+        screenVector.x = (screenVector.x - 0.5f) * (r-l);
+        screenVector.y = (screenVector.y - 0.5f) * (t-b);
+        Vec2 objective = j.playerShip.getPosition().add(screenVector);
+        setPosition(Vec2.lerp(getPosition(), objective, .1f));
     }
 
     void updateViewMatrix() {
@@ -38,7 +39,7 @@ class Camera extends GameObject {
     }
 
     void updateProjectionMatrix() {
-        float aspectRatio = (float) f.winHeight/f.winWidth;
+        aspectRatio = (float) f.winHeight/f.winWidth;
         t =  (r-l)*aspectRatio/2;
         b = -(r-l)*aspectRatio/2;
         projectionMatrix = new AffineTransform();
