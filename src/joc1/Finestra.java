@@ -2,20 +2,27 @@ package joc1;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferStrategy;
 
 class Finestra extends Frame {
 	private final Joc j;
 	private static GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	BufferStrategy bstrat;
 	Graphics2D fGraphics;
 
 	int winHeight = 600, winWidth = 1000;
-	private boolean fullscreen = false;
+	boolean fullscreen = false;
 
 	Finestra(Joc joc) {
 		super("Joc");
 		setSize(winWidth, winHeight);
 		setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+		setIgnoreRepaint(true);
 		setVisible(true);
+		createBufferStrategy(2);
+		// Alerta: Si tens targeta Nvidia recomano desactivar la sincronització vertical o seleccionar el mode ràpid
+		// al panell de control per disminuir l'input lag en pantalla completa
+		bstrat = getBufferStrategy();
 
 		fGraphics = (Graphics2D) getGraphics();
 		fGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -62,14 +69,13 @@ class Finestra extends Frame {
 	private void toggleFullscreen() {
 		if (fullscreen) {
 			device.setFullScreenWindow(null);
+			setResizable(true);
 			fullscreen = false;
 		}
 		else {
 			if (device.isFullScreenSupported()) {
-				setIgnoreRepaint(true);
 				setResizable(false);
 				device.setFullScreenWindow(this);
-				System.out.println(device.getDisplayMode());
 				fullscreen = true;
 			}
 		}
@@ -99,13 +105,5 @@ class Finestra extends Frame {
 			winWidth = getWidth();
 			maximized = true;
 		}*/
-	}
-	
-	public void paint(Graphics g) { // la crida el sistema de manera implícita
-		g.drawImage(j.bufferImage,0,0,null);
-	}
-
-	public void update(Graphics g){
-		paint(g);
 	}
 }

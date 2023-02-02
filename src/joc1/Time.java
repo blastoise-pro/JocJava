@@ -3,6 +3,7 @@ package joc1;
 final class Time {
     static double targetFrameTime = 1 / 200.0;
     static double fixedDeltaTime = 1 / 200.0;
+    private static double fps = 0;
 
     static boolean callingFromFixedUpdate = false;
     static double timeScale = 1;
@@ -20,6 +21,10 @@ final class Time {
 
     static double fixedDeltaTime() {
         return fixedDeltaTime;
+    }
+
+    static double fps() {
+        return fps;
     }
 
     static double timeScale() {
@@ -60,5 +65,6 @@ final class Time {
         unscaledTime += unscaledDeltaTime;
         time += deltaTime;
         unsimulatedTime += deltaTime;
+        fps = 1/unscaledDeltaTime;
     }
 }

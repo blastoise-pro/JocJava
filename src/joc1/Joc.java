@@ -3,6 +3,7 @@ package joc1;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.awt.image.BufferStrategy;
 import java.util.*;
 import java.util.List;
 
@@ -50,6 +51,7 @@ public class Joc {
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
 			double frameTime = currentTime - startTime;
+			System.out.println("Should sleep for: " + (Time.targetFrameTime - frameTime));
 			if (frameTime < Time.targetFrameTime) {
 				try {
 					Thread.sleep((long) ((Time.targetFrameTime - frameTime) * 1000));
@@ -64,7 +66,8 @@ public class Joc {
 			// es calculi incorrectament i les físiques es descontrolin. També Thread.sleep() no es exacte en el temps que dorm.
 			Time.updateTimes(frameTime + sleepTime);
 
-			//System.out.println("DeltaTime: " + Time.deltaTime());
+			System.out.println("Slept for: " + sleepTime);
+			System.out.println("DeltaTime: " + Time.deltaTime());
 			//System.out.println("RealDeltaTime: " + Time.unscaledDeltaTime());
 			//System.out.println("Time: " + Time.time());
 			//System.out.println("RealTime: " + Time.unscaledTime());
@@ -97,9 +100,19 @@ public class Joc {
 			lateUpdate();
 
 			// Render
-			render();
+			if (f.fullscreen) {
+				Graphics2D g2 = (Graphics2D) f.bstrat.getDrawGraphics();
+				g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+				render(g2);
+				g2.dispose();
+				f.bstrat.show();
+			}
+			else {
+				render(g2buff);
+				f.fGraphics.drawImage(bufferImage, 0, 0, null);
+			}
 			destroyObjects();
-			//System.out.println("\n\n");
+			System.out.println("\n\n");
 		}
 	}
 
@@ -211,18 +224,21 @@ public class Joc {
 		 */
 	}
 
-	void render() {
-		g2buff.setColor(Color.black);
-		g2buff.fillRect(0, 0, f.winWidth, f.winHeight);
+	void render(Graphics2D g2) {
+		g2.setColor(Color.black);
+		g2.fillRect(0, 0, f.winWidth, f.winHeight);
+		AffineTransform savedT = g2.getTransform();
+		g2.setColor(Color.gray);
+		g2.transform(AffineTransform.getScaleInstance(3, 3));
+		g2.drawString(Double.toString(Time.fps()), 0, 20);
+		g2.setTransform(savedT);
 
 		AffineTransform PVMatrix = new AffineTransform(camera.projectionMatrix);
 		camera.updateViewMatrix();
 		PVMatrix.concatenate(camera.viewMatrix);
 
 		for (GameObject obj : gameObjects) {
-			obj.pintar(g2buff, PVMatrix);
+			obj.pintar(g2, PVMatrix);
 		}
-
-		f.update(f.fGraphics);
 	}
 }
