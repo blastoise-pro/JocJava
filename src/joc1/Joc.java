@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.List;
 
 public class Joc {
+	public final static boolean DRAW_HITBOXES = false;
 	private double startTime = System.currentTimeMillis()/1000.0;
 
 	private final Finestra f;
@@ -42,7 +43,7 @@ public class Joc {
 	public void run () {
 		camera = new Camera(this, new Vec2(), f);
 
-		//new Background(this, "assets/BG/web_first_images_release.png");
+		new Background(this);
 		playerShip = new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
 			new EnemyShip(this, Vec2.random(camera.l, camera.r, camera.b, camera.t));
@@ -51,7 +52,7 @@ public class Joc {
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
 			double frameTime = currentTime - startTime;
-			System.out.println("Should sleep for: " + (Time.targetFrameTime - frameTime));
+			//System.out.println("Should sleep for: " + (Time.targetFrameTime - frameTime));
 			if (frameTime < Time.targetFrameTime) {
 				try {
 					Thread.sleep((long) ((Time.targetFrameTime - frameTime) * 1000));
@@ -66,8 +67,8 @@ public class Joc {
 			// es calculi incorrectament i les físiques es descontrolin. També Thread.sleep() no es exacte en el temps que dorm.
 			Time.updateTimes(frameTime + sleepTime);
 
-			System.out.println("Slept for: " + sleepTime);
-			System.out.println("DeltaTime: " + Time.deltaTime());
+			//System.out.println("Slept for: " + sleepTime);
+			//System.out.println("DeltaTime: " + Time.deltaTime());
 			//System.out.println("RealDeltaTime: " + Time.unscaledDeltaTime());
 			//System.out.println("Time: " + Time.time());
 			//System.out.println("RealTime: " + Time.unscaledTime());
@@ -112,7 +113,7 @@ public class Joc {
 				f.fGraphics.drawImage(bufferImage, 0, 0, null);
 			}
 			destroyObjects();
-			System.out.println("\n\n");
+			//System.out.println("\n\n");
 		}
 	}
 
@@ -187,12 +188,12 @@ public class Joc {
 	}
 
 	void addObject(GameObject obj) {
-		System.out.println("Added new object.");
+		//System.out.println("Added new object.");
 		instatiateQueue.add(obj);
 	}
 
 	void destroy(GameObject obj) {
-		System.out.println("Destroying object...");
+		//System.out.println("Destroying object...");
 		destroyQueue.add(obj);
 		obj.destroying = true;
 	}
@@ -225,20 +226,21 @@ public class Joc {
 	}
 
 	void render(Graphics2D g2) {
-		g2.setColor(Color.black);
-		g2.fillRect(0, 0, f.winWidth, f.winHeight);
-		AffineTransform savedT = g2.getTransform();
-		g2.setColor(Color.gray);
-		g2.transform(AffineTransform.getScaleInstance(3, 3));
-		g2.drawString(Double.toString(Time.fps()), 0, 20);
-		g2.setTransform(savedT);
+		//g2.setColor(Color.black);
+		//g2.fillRect(0, 0, f.winWidth, f.winHeight);
 
-		AffineTransform PVMatrix = new AffineTransform(camera.projectionMatrix);
-		camera.updateViewMatrix();
-		PVMatrix.concatenate(camera.viewMatrix);
+        AffineTransform PVMatrix = new AffineTransform(camera.projectionMatrix);
+        camera.updateViewMatrix();
+        PVMatrix.concatenate(camera.viewMatrix);
 
-		for (GameObject obj : gameObjects) {
-			obj.pintar(g2, PVMatrix);
-		}
-	}
+        for (GameObject obj : gameObjects) {
+            obj.pintar(g2, PVMatrix);
+        }
+
+        AffineTransform savedT = g2.getTransform();
+        g2.setColor(Color.gray);
+        g2.transform(AffineTransform.getScaleInstance(3, 3));
+        g2.drawString(Double.toString(Time.fps()), 0, 20);
+        g2.setTransform(savedT);
+    }
 }

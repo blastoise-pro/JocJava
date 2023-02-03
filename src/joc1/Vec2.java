@@ -136,6 +136,10 @@ public class Vec2 implements Cloneable{
         return new Vec2((float) Math.cos(theta), (float) Math.sin(theta));
     }
 
+    public static Vec2 unitFromAngle(float a) {
+        return new Vec2((float) Math.cos(a),(float) Math.sin(a));
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + ")";

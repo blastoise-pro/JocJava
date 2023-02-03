@@ -21,7 +21,7 @@ abstract class Ship extends PhysicsObject implements Collider {
     float attackSpeed;
     double lastShotTime = -1000;
 
-    Polygon shipShape;
+    Shape shipShape;
     Shape hitbox;
 
     Vec2 getCannonOffset() {
@@ -50,7 +50,7 @@ abstract class Ship extends PhysicsObject implements Collider {
 
     Ship(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed,
          float maxSpeed, float thrustPower, float airResistance, Direction lookingAt, Vec2 cannonOffset,
-         Vec2 cannonDir, float cannonLength, float bulletSpeed, float attackSpeed, Polygon shipShape) {
+         Vec2 cannonDir, float cannonLength, float bulletSpeed, float attackSpeed, Shape shipShape) {
         super(j, position, rotation, scale, speed);
 
         this.maxSpeed = maxSpeed;

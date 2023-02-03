@@ -29,7 +29,7 @@ class Camera extends GameObject {
         screenVector.x = (screenVector.x - 0.5f) * (r-l);
         screenVector.y = (screenVector.y - 0.5f) * (t-b);
         Vec2 objective = j.playerShip.getPosition().add(screenVector);
-        setPosition(Vec2.lerp(getPosition(), objective, .1f));
+        setPosition(Vec2.lerp(getPosition(), objective, (float) (1 - Math.pow(1 - .1, Time.deltaTime() * 60))));
     }
 
     void updateViewMatrix() {

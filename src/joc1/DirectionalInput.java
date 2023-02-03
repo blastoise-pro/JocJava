@@ -4,7 +4,11 @@ enum Direction {
     UP    ((byte)1, new Vec2(0, 1)),
     DOWN  ((byte)2, new Vec2(0, -1)),
     LEFT  ((byte)4, new Vec2(-1, 0)),
-    RIGHT ((byte)8, new Vec2(1, 0));
+    UPLEFT ((byte)5, new Vec2(-1, 1)),
+    DOWNLEFT ((byte) 6, new Vec2(-1, -1)),
+    RIGHT ((byte)8, new Vec2(1, 0)),
+    UPRIGHT ((byte)9, new Vec2(1, 1)),
+    DOWNRIGHT ((byte)10, new Vec2(1, -1));
 
     private final byte directionBit;
     private final Vec2 vector;
