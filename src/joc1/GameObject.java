@@ -9,6 +9,7 @@ abstract class GameObject {
     private float rotation;
     private Vec2 scale;
     boolean destroying = false;
+    boolean isChild;
 
     Vec2 getPosition() {
         return position.clone();
@@ -54,6 +55,16 @@ abstract class GameObject {
         setPosition(position);
         setRotation(rotation);
         setScale(scale);
+        isChild = false;
+        this.j = j;
+        j.addObject(this);
+    }
+
+    GameObject(Joc j, Vec2 position, float rotation, Vec2 scale, boolean isChild) {
+        setPosition(position);
+        setRotation(rotation);
+        setScale(scale);
+        this.isChild = isChild;
         this.j = j;
         j.addObject(this);
     }

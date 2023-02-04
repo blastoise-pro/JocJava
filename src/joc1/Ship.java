@@ -6,11 +6,13 @@ import java.awt.geom.AffineTransform;
 abstract class Ship extends PhysicsObject implements Collider {
     float maxHP;
     float HP;
+    boolean isDead = false;
 
     float maxSpeed;
     float thrustPower;
     float turningHelp = 0.03f;
     float airResistance;
+    float knockback;
 
     private Vec2 cannonOffset;
     private Vec2 cannonPos;
@@ -23,6 +25,8 @@ abstract class Ship extends PhysicsObject implements Collider {
 
     Shape shipShape;
     Shape hitbox;
+
+    boolean drawShip = true;
 
     Vec2 getCannonOffset() {
         return cannonOffset.clone();
@@ -48,14 +52,17 @@ abstract class Ship extends PhysicsObject implements Collider {
         this.cannonDir = cannonDir.clone();
     }
 
-    Ship(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed,
-         float maxSpeed, float thrustPower, float airResistance, Direction lookingAt, Vec2 cannonOffset,
+    Ship(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed, float maxHP,
+         float maxSpeed, float thrustPower, float airResistance, float knockback, Direction lookingAt, Vec2 cannonOffset,
          Vec2 cannonDir, float cannonLength, float bulletSpeed, float attackSpeed, Shape shipShape) {
         super(j, position, rotation, scale, speed);
+        this.maxHP = maxHP;
+        HP = maxHP;
 
         this.maxSpeed = maxSpeed;
         this.thrustPower = thrustPower;
         this.airResistance = airResistance;
+        this.knockback = knockback;
 
         setCannonOffset(cannonOffset);
         setCannonPos(getPosition().add(cannonOffset));
@@ -65,11 +72,14 @@ abstract class Ship extends PhysicsObject implements Collider {
         this.bulletSpeed = bulletSpeed;
         this.attackSpeed = attackSpeed;
 
-        this.shipShape = shipShape;
-        updateCollider();
+        if (shipShape != null) {
+            this.shipShape = shipShape;
+            updateCollider();
+        }
     }
 
     void fixedUpdate() {
+        setSpeed(getSpeed().clamp(0, maxSpeed));
         translate(getSpeed().scale((float) Time.deltaTime()));
         applyForce(getSpeed().normalized().scale(- maxSpeed * airResistance).scale((float) Time.deltaTime()));
         cannonPos = getPosition().add(cannonOffset);
@@ -84,7 +94,14 @@ abstract class Ship extends PhysicsObject implements Collider {
             boostedThrust -= thrustPower*parallelSpeed*turningHelp;
         }
         applyForce(dir.scale(boostedThrust).scale((float) Time.deltaTime()));
-        setSpeed(getSpeed().clamp(0, maxSpeed));
+    }
+
+    void collideWithShip(Ship other) {
+        Vec2 force = getPosition().sub(other.getPosition()).normalized();
+        float relSpeed = getSpeed().sub(other.getSpeed()).norm();
+        float power = relSpeed * knockback;
+        applyForce(force, power);
+        System.out.println("Force applied: " + force.scale(power));
     }
 
     void pointCannonAt(Vec2 pos) {
@@ -110,6 +127,6 @@ abstract class Ship extends PhysicsObject implements Collider {
 
     @Override
     public boolean colliderIsActive() {
-        return !destroying;
+        return !destroying && drawShip;
     }
 }

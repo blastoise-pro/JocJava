@@ -14,15 +14,33 @@ class PlayerShip extends Ship {
     private final static Set<String> collisionMask = new HashSet<>(List.of("bulletF"));
 
     Sprite sprite;
+    Animation explosion;
+    HPBar hpBar;
+    double lastDamageTime = 0;
+    double invTime = 0.5f;
 
     PlayerShip(Joc j, Vec2 position) {
-        super(j, position, 0, new Vec2(1f, 1f), new Vec2(), 40, 100, 0.9f, Direction.RIGHT, new Vec2(),
-                Direction.RIGHT.vector(), 2, 100, 1f,
-                new Polygon(xPoints, yPoints, xPoints.length));
-        sprite = new Sprite("assets/Ships/basic1.png", new Vec2(0.1f, 0.1f));
+        super(j, position, 0, new Vec2(1f, 1f), new Vec2(), 10,
+                40, 100, 0.9f, 2, Direction.RIGHT,
+                new Vec2(), Direction.RIGHT.vector(), 2, 100, 1f, null);
+
+        Vec2 hitboxScale = new Vec2(0.1f, 0.1f);
+        sprite = new Sprite("assets/Ships/basic1.png", hitboxScale);
+        shipShape = AffineTransform.getScaleInstance(hitboxScale.x, hitboxScale.y)
+                .createTransformedShape(new Polygon(xPoints, yPoints, xPoints.length));
+
+        hpBar = new HPBar(j, this, new Vec2(0, -sprite.getHeight()/2 - 2), new Vec2(sprite.getHeight(), 1));
+        explosion = new Animation(AssetLoader.explosion2, new Vec2(.5f, .5f), 1.5, false);
     }
 
     void update() {
+        if (j.gamePaused || isDead) {
+            if (explosion.getIndex() == 33) {
+                drawShip = false;
+            }
+            return;
+        }
+
         pointCannonAt(Input.getMousePosition());
         if (Input.getAction(Action.SHOOT) && (Time.time() - lastShotTime >= 1/attackSpeed)) {
             shoot();
@@ -31,6 +49,9 @@ class PlayerShip extends Ship {
     }
 
     void fixedUpdate() {
+        if (isDead) {
+            return;
+        }
         setRotation(Input.getMousePosition().sub(getPosition()).getAngle());
         thrust(Input.getDirection());
 
@@ -44,10 +65,34 @@ class PlayerShip extends Ship {
 
     @Override
     public void onColliderEnter(Collider other) {
-        if (other.getLabel().equals("enemy") || other.getLabel().equals("bulletE")) {
-            //System.out.println("Damage");
-            //j.destroy(this);
+        System.out.println("Collider " + getLabel() + " collided with " + other.getLabel());
+        if (other.getLabel().equals("enemy")) {
+            EnemyShip enemy = (EnemyShip) other;
+            collideWithShip(enemy);
+            if (Time.time() > lastDamageTime + invTime) {
+                lastDamageTime = Time.time();
+                damage(enemy.contactDamage);
+            }
         }
+        else if (other.getLabel().equals("bulletE")) {
+            System.out.println("Damage");
+            //j.destroy(this);
+            damage(3);
+        }
+    }
+
+    void damage(float amount) {
+        HP -= amount;
+        if (HP <= 0 && !isDead) {
+            HP = 0;
+            isDead = true;
+            explosion.play();
+        }
+    }
+
+    @Override
+    public void onColliderStay(Collider other) {
+
     }
 
     @Override
@@ -71,12 +116,19 @@ class PlayerShip extends Ship {
         AffineTransform PVM = new AffineTransform(PVMatrix);
         PVM.concatenate(getModelMatrix());
 
-        sprite.pintar(g, PVM);
+        if (drawShip){
+            sprite.pintar(g, PVM);
+        }
 
         if (Joc.DRAW_HITBOXES) {
             Shape transPoly = PVM.createTransformedShape(shipShape);
             g.fill(transPoly);
         }
+
+        if (explosion.isPlaying()) {
+            explosion.getFrame().pintar(g, PVM);
+        }
+
         /*
         Vec2 cannonDR = getCannonDir().scale(cannonLength);
         Vec2 cannonPos = getCannonPos();

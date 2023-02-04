@@ -3,7 +3,6 @@ package joc1;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
-import java.awt.image.BufferStrategy;
 import java.util.*;
 import java.util.List;
 
@@ -12,8 +11,8 @@ public class Joc {
 	private double startTime = System.currentTimeMillis()/1000.0;
 
 	private final Finestra f;
-	Image bufferImage;
-	Graphics2D g2buff;
+	//Image bufferImage;
+	//Graphics2D g2buff;
 
 	final Random ran = new Random();
 
@@ -33,6 +32,7 @@ public class Joc {
 	}
 
 	public Joc () {
+		AssetLoader.loadAssets();
 		f = new Finestra(this);
 		Input.initInput();
 		Input input = new Input();
@@ -46,8 +46,9 @@ public class Joc {
 		new Background(this);
 		playerShip = new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
-			new EnemyShip(this, Vec2.random(camera.l, camera.r, camera.b, camera.t));
+			//new EnemyShip(this, Vec2.random(camera.l, camera.r, camera.b, camera.t));
 		}
+		new EnemyShip(this, new Vec2());
 
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
@@ -101,17 +102,14 @@ public class Joc {
 			lateUpdate();
 
 			// Render
-			if (f.fullscreen) {
-				Graphics2D g2 = (Graphics2D) f.bstrat.getDrawGraphics();
-				g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-				render(g2);
-				g2.dispose();
-				f.bstrat.show();
-			}
-			else {
-				render(g2buff);
-				f.fGraphics.drawImage(bufferImage, 0, 0, null);
-			}
+			Graphics2D g2 = (Graphics2D) f.bstrat.getDrawGraphics();
+			g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+			render(g2);
+			g2.dispose();
+			f.bstrat.show();
+			//render(g2buff);
+			//f.fGraphics.drawImage(bufferImage, 0, 0, null);
+
 			destroyObjects();
 			//System.out.println("\n\n");
 		}
@@ -158,16 +156,22 @@ public class Joc {
 			}
 			col1 = colliders.get(i);
 			for (int j = i+1; j < colliders.size(); j++) {
-				if (!colliders.get(j).colliderIsActive()) {
+				col2 = colliders.get(j);
+				if (!col2.colliderIsActive() || col1.getCollisionMask().contains(col2.getLabel()) || col2.getCollisionMask().contains(col1.getLabel())) {
 					continue;
 				}
 				area = new Area(col1.getCollider());
-				col2 = colliders.get(j);
 				area.intersect(new Area(col2.getCollider()));
 				if (!area.isEmpty()) {
-					col1.onColliderEnter(col2);
-					col2.onColliderEnter(col1);
 					collisionPair = new UnorderedPair<>(col1, col2);
+					if (!lastStepCollisions.contains(collisionPair)){
+						col1.onColliderEnter(col2);
+						col2.onColliderEnter(col1);
+					}
+					else {
+						col1.onColliderStay(col2);
+						col2.onColliderStay(col1);
+					}
 					activeCollisions.add(collisionPair);
 				}
 			}
@@ -234,7 +238,9 @@ public class Joc {
         PVMatrix.concatenate(camera.viewMatrix);
 
         for (GameObject obj : gameObjects) {
-            obj.pintar(g2, PVMatrix);
+			if (!obj.isChild) {
+				obj.pintar(g2, PVMatrix);
+			}
         }
 
         AffineTransform savedT = g2.getTransform();

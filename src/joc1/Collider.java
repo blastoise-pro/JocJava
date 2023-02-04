@@ -16,5 +16,7 @@ interface Collider {
 
     void onColliderEnter(Collider other);
 
+    void onColliderStay(Collider other);
+
     void onColliderExit(Collider other);
 }

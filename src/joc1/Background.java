@@ -2,6 +2,8 @@ package joc1;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.ArrayList;
+import java.util.List;
 
 class Background extends GameObject {
 
@@ -18,7 +20,7 @@ class Background extends GameObject {
         void movementUpdate() {
             position.Add(j.camera.getPosition().sub(lastCameraPos).scale(movementFactor));
             Vec2 diff = lastCameraPos.sub(position);
-            System.out.println("Diff: " + diff);
+            //System.out.println("Diff: " + diff);
             if (diff.x > sprite.getWidth()/2) {
                 position.x += sprite.getWidth();
             }
@@ -46,14 +48,19 @@ class Background extends GameObject {
         }
     }
 
-    Layer[] layers = new Layer[3];
+    List<Layer> layers = new ArrayList<>();
     Vec2 lastCameraPos;
 
     Background(Joc j) {
         super(j, new Vec2(0, 0), 0, new Vec2(1f, 1f));
-        layers[0] = new Layer("assets/BG/layer1.png", new Vec2(.2f, .2f), 0.9f);
-        layers[1] = new Layer("assets/BG/layer3.png", new Vec2(.2f, .2f), 0.5f);
-        layers[2] = new Layer("assets/BG/layer2.png", new Vec2(.2f, .2f), 0.3f);
+        layers.add(new Layer("assets/BG/layer1.png", new Vec2(.2f, .2f), 0.9f));
+        //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-backgound.png", new Vec2(1f, 1f), 0.9f));
+        //layers.add(new Layer("assets/BG/layer3.png", new Vec2(.2f, .2f), 0.5f));
+        layers.add(new Layer("assets/BG/layer2.png", new Vec2(.2f, .2f), 0.7f));
+        layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-stars.png", new Vec2(.5f, .5f), 0.5f));
+        layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-far-planets.png", new Vec2(1f, 1f), 0.3f));
+        //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-ring-planet.png", new Vec2(1f, 1f), 0.3f));
+        //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-big-planet.png", new Vec2(1f, 1f), 0.2f));
     }
 
     void start() {
@@ -67,14 +74,7 @@ class Background extends GameObject {
         for (Layer layer:layers) {
             layer.movementUpdate();
         }
-        System.out.println("\n");
         lastCameraPos = j.camera.getPosition();
-        if (Input.getActionDown(Action.SHOOT)) {
-            for (Layer layer:layers) {
-                System.out.println("Position: " + layer.position);
-            }
-            System.out.println("\n\n");
-        }
     }
 
     public void pintar(Graphics2D g, AffineTransform PVMatrix) {

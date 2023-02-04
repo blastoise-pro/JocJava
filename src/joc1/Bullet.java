@@ -1,8 +1,6 @@
 package joc1;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +40,7 @@ abstract class Bullet extends PhysicsObject implements Collider {
         updateCollider();
     }
 
+    @Override
     public void onColliderEnter(Collider other) {
         if (friendly && other.getLabel().equals("player")) {
             return;
@@ -50,6 +49,12 @@ abstract class Bullet extends PhysicsObject implements Collider {
         j.destroy(this);
     }
 
+    @Override
+    public void onColliderStay(Collider other) {
+
+    }
+
+    @Override
     public void onColliderExit(Collider other) {
 
     }
