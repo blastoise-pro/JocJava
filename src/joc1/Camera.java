@@ -9,7 +9,7 @@ class Camera extends GameObject {
     // Parametres del "frustum" de la projecció ortogràfica (quines coordenades a view space són visibles)
     // Només necessitem els límits esquerre i dret, el superior i inferior es calculen respectant l'aspect ratio
     // de la finestra
-    float l = -100, r = 100, t, b;
+    float l = -150, r = 150, t, b;
     float aspectRatio;
     AffineTransform viewMatrix;
     AffineTransform projectionMatrix;
@@ -26,8 +26,8 @@ class Camera extends GameObject {
 
     void lateUpdate() {
         Vec2 screenVector = Input.getWindowMousePosition();
-        screenVector.x = (screenVector.x - 0.5f) * (r-l);
-        screenVector.y = (screenVector.y - 0.5f) * (t-b);
+        screenVector.x = (screenVector.x - 0.5f) * (r-l) * 0.8f;
+        screenVector.y = (screenVector.y - 0.5f) * (t-b) * 0.8f;
         Vec2 objective = j.playerShip.getPosition().add(screenVector);
         setPosition(Vec2.lerp(getPosition(), objective, (float) (1 - Math.pow(1 - .1, Time.deltaTime() * 60))));
     }

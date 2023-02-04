@@ -40,7 +40,7 @@ class Background extends GameObject {
             PVM.translate(position.x, position.y);
             sprite.pintar(g, PVM);
             AffineTransform sides;
-            for (Direction dir:Direction.values()) {
+            for (Direction8 dir: Direction8.values()) {
                 sides = new AffineTransform(PVM);
                 sides.translate(dir.vector().x * sprite.getWidth(), dir.vector().y * sprite.getHeight());
                 sprite.pintar(g, sides);

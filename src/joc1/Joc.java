@@ -8,6 +8,7 @@ import java.util.List;
 
 public class Joc {
 	public final static boolean DRAW_HITBOXES = false;
+	public final static boolean DRAW_BULLETSPAWNS = true;
 	private double startTime = System.currentTimeMillis()/1000.0;
 
 	private final Finestra f;
@@ -46,9 +47,13 @@ public class Joc {
 		new Background(this);
 		playerShip = new PlayerShip(this, new Vec2(0, 0));
 		for (int i = 0; i < 5; i++) {
-			//new EnemyShip(this, Vec2.random(camera.l, camera.r, camera.b, camera.t));
+			new Bomber(this, Vec2.randomWithRadius(200));
+			new Frigate(this, Vec2.randomWithRadius(200));
 		}
-		new EnemyShip(this, new Vec2());
+		new Frigate(this, new Vec2(0, -100));
+		new Battlecruiser(this, new Vec2(100, 0));
+		new Bomber(this, new Vec2(-200, 100));
+		new Fighter(this, new Vec2(0, 100));
 
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;

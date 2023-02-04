@@ -10,7 +10,7 @@ abstract class Ship extends PhysicsObject implements Collider {
 
     float maxSpeed;
     float thrustPower;
-    float turningHelp = 0.03f;
+    float turningHelp;
     float airResistance;
     float knockback;
 
@@ -53,7 +53,7 @@ abstract class Ship extends PhysicsObject implements Collider {
     }
 
     Ship(Joc j, Vec2 position, float rotation, Vec2 scale, Vec2 speed, float maxHP,
-         float maxSpeed, float thrustPower, float airResistance, float knockback, Direction lookingAt, Vec2 cannonOffset,
+         float maxSpeed, float thrustPower, float turningHelp, float airResistance, float knockback, Vec2 cannonOffset,
          Vec2 cannonDir, float cannonLength, float bulletSpeed, float attackSpeed, Shape shipShape) {
         super(j, position, rotation, scale, speed);
         this.maxHP = maxHP;
@@ -61,6 +61,7 @@ abstract class Ship extends PhysicsObject implements Collider {
 
         this.maxSpeed = maxSpeed;
         this.thrustPower = thrustPower;
+        this.turningHelp = turningHelp;
         this.airResistance = airResistance;
         this.knockback = knockback;
 
@@ -97,11 +98,11 @@ abstract class Ship extends PhysicsObject implements Collider {
     }
 
     void collideWithShip(Ship other) {
-        Vec2 force = getPosition().sub(other.getPosition()).normalized();
+        Vec2 forceDir = getPosition().sub(other.getPosition()).normalized();
         float relSpeed = getSpeed().sub(other.getSpeed()).norm();
         float power = relSpeed * knockback;
-        applyForce(force, power);
-        System.out.println("Force applied: " + force.scale(power));
+        applyForce(forceDir, power);
+        System.out.println("Force applied: " + forceDir.scale(power));
     }
 
     void pointCannonAt(Vec2 pos) {
@@ -127,6 +128,6 @@ abstract class Ship extends PhysicsObject implements Collider {
 
     @Override
     public boolean colliderIsActive() {
-        return !destroying && drawShip;
+        return !destroying && drawShip && !isDead;
     }
 }

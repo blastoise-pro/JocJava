@@ -21,8 +21,8 @@ class PlayerShip extends Ship {
 
     PlayerShip(Joc j, Vec2 position) {
         super(j, position, 0, new Vec2(1f, 1f), new Vec2(), 10,
-                40, 100, 0.9f, 2, Direction.RIGHT,
-                new Vec2(), Direction.RIGHT.vector(), 2, 100, 1f, null);
+                40, 100, 0.03f, 0.9f, 2,
+                new Vec2(), Direction4.RIGHT.vector(), 2, 100, 1f, null);
 
         Vec2 hitboxScale = new Vec2(0.1f, 0.1f);
         sprite = new Sprite("assets/Ships/basic1.png", hitboxScale);
@@ -30,11 +30,14 @@ class PlayerShip extends Ship {
                 .createTransformedShape(new Polygon(xPoints, yPoints, xPoints.length));
 
         hpBar = new HPBar(j, this, new Vec2(0, -sprite.getHeight()/2 - 2), new Vec2(sprite.getHeight(), 1));
-        explosion = new Animation(AssetLoader.explosion2, new Vec2(.5f, .5f), 1.5, false);
+        explosion = new Animation(AssetLoader.explosionHuge, new Vec2(.5f, .5f), 1.5, false);
     }
 
     void update() {
-        if (j.gamePaused || isDead) {
+        if (j.gamePaused) {
+            return;
+        }
+        if (isDead) {
             if (explosion.getIndex() == 33) {
                 drawShip = false;
             }

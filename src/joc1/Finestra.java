@@ -10,7 +10,7 @@ class Finestra extends Frame {
 	BufferStrategy bstrat;
 	//Graphics2D fGraphics;
 
-	int winHeight = 600, winWidth = 1000;
+	int winHeight = 900, winWidth = 1500;
 	boolean fullscreen = false;
 
 	Finestra(Joc joc) {

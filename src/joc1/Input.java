@@ -73,10 +73,10 @@ class Input implements KeyListener, MouseListener {
         lastUpdateKeyState.putAll(keyState);
 
         dir.clear();
-        if (keyState.get(keyBinds.get(Action.MOVE_LEFT))) dir.addInput(Direction.LEFT);
-        if (keyState.get(keyBinds.get(Action.MOVE_RIGHT))) dir.addInput(Direction.RIGHT);
-        if (keyState.get(keyBinds.get(Action.MOVE_UP))) dir.addInput(Direction.UP);
-        if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction.DOWN);
+        if (keyState.get(keyBinds.get(Action.MOVE_LEFT))) dir.addInput(Direction4.LEFT);
+        if (keyState.get(keyBinds.get(Action.MOVE_RIGHT))) dir.addInput(Direction4.RIGHT);
+        if (keyState.get(keyBinds.get(Action.MOVE_UP))) dir.addInput(Direction4.UP);
+        if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction4.DOWN);
     }
 
     static void updateMousePosition(Finestra f, Camera c) {

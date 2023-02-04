@@ -6,7 +6,7 @@ import java.awt.geom.Rectangle2D;
 
 public class HPBar extends GameObject {
     static float rangeDown = 0.5f;
-    static float rangeUp = 1.5f;
+    static float rangeUp = 3f;
     static float hueMin = 0;
     static float hueMax = 0.5f;
     private final Ship parent;
