@@ -5,6 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+enum BulletEffect {
+    HOMING, BOUNCE, AREA, REPLICATE
+}
+
 abstract class Bullet extends PhysicsObject implements Collider {
     boolean friendly;
     double instatiationTime;
@@ -13,16 +17,27 @@ abstract class Bullet extends PhysicsObject implements Collider {
     private final static String labelF = "bulletF";
     private final static String labelE = "bulletE";
     private final static Set<String> collisionMask = new HashSet<>(List.of(labelF, labelE));
-    Polygon bulletShape;
+    Shape bulletShape;
     Shape hitbox;
 
-    Bullet(Joc j, Vec2 pos, float rotation, Vec2 scale, Vec2 speed, boolean friendly, float lifetime, Polygon bulletShape) {
+    float damage;
+    int penetration;
+    Set<BulletEffect> effects;
+
+    Bullet(Joc j, Vec2 pos, float rotation, Vec2 scale, Vec2 speed, boolean friendly, float lifetime, Shape bulletShape,
+           float damage, int penetration, Set<BulletEffect> effects) {
         super(j, pos, rotation, scale, speed);
         this.friendly = friendly;
         this.lifetime = lifetime;
 
-        this.bulletShape = bulletShape;
-        updateCollider();
+        this.damage = damage;
+        this.penetration = penetration;
+        this.effects = effects;
+
+        if (bulletShape != null){
+            this.bulletShape = bulletShape;
+            updateCollider();
+        }
     }
 
     void start() {
@@ -46,7 +61,11 @@ abstract class Bullet extends PhysicsObject implements Collider {
             return;
         }
 
-        j.destroy(this);
+        if (friendly && other.getLabel().equals("enemy")) {
+            if (--penetration <= 0) {
+                j.destroy(this);
+            }
+        }
     }
 
     @Override

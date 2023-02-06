@@ -5,6 +5,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
 class Camera extends GameObject {
+    static AffineTransform projectionMatrixGUI;
+    static AffineTransform inversePMatrixGUI;
     private final Finestra f;
     // Parametres del "frustum" de la projecció ortogràfica (quines coordenades a view space són visibles)
     // Només necessitem els límits esquerre i dret, el superior i inferior es calculen respectant l'aspect ratio
@@ -57,6 +59,19 @@ class Camera extends GameObject {
         }
         catch (NoninvertibleTransformException e) {
             throw new AssertionError("Transformació no té inversa"); // No pot passar
+        }
+    }
+
+    static void updateGUIMatrices(Finestra f) {
+        projectionMatrixGUI = new AffineTransform();
+        projectionMatrixGUI.scale(f.winWidth, f.winHeight);
+
+        inversePMatrixGUI = new AffineTransform(projectionMatrixGUI);
+        try {
+            inversePMatrixGUI.invert();
+        }
+        catch (NoninvertibleTransformException e) {
+            throw new AssertionError("Transformació GUI no té inversa"); // No pot passar
         }
     }
 

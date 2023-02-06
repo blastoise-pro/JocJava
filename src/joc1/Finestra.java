@@ -47,18 +47,7 @@ class Finestra extends Frame {
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				winHeight = e.getComponent().getHeight();
-				winWidth = e.getComponent().getWidth();
-				/*
-				fGraphics = (Graphics2D) getGraphics(); // Aquest objecte canvia al canviar el tamany de la finestra
-				fGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-				fGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-				j.bufferImage = createImage(winWidth, winHeight);
-				j.g2buff = (Graphics2D)j.bufferImage.getGraphics();
-				*/
-				repaint();
-
-				j.camera.updateProjectionMatrix();
+				windowResized(e);
 			}
 		});
 		addKeyListener(new KeyAdapter() {
@@ -69,6 +58,24 @@ class Finestra extends Frame {
 				}
 			}
 		});
+
+		Camera.updateGUIMatrices(this);
+	}
+
+	private void windowResized(ComponentEvent e) {
+		winHeight = e.getComponent().getHeight();
+		winWidth = e.getComponent().getWidth();
+		/*
+		fGraphics = (Graphics2D) getGraphics(); // Aquest objecte canvia al canviar el tamany de la finestra
+		fGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		fGraphics.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+		j.bufferImage = createImage(winWidth, winHeight);
+		j.g2buff = (Graphics2D)j.bufferImage.getGraphics();
+		*/
+		repaint();
+
+		j.camera.updateProjectionMatrix();
+		Camera.updateGUIMatrices(this);
 	}
 
 	private void toggleFullscreen() {

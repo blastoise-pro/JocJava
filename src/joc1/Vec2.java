@@ -70,6 +70,19 @@ public class Vec2 implements Cloneable{
         return (float) Math.atan2(y, x);
     }
 
+    public Vec2 rotate(float theta) {
+        float cos = (float) Math.cos(theta);
+        float sin = (float) Math.sin(theta);
+        return new Vec2(cos * x - sin * y, sin * x + cos * y);
+    }
+
+    public void Rotate(float theta) {
+        float cos = (float) Math.cos(theta);
+        float sin = (float) Math.sin(theta);
+        x = cos * x - sin * y;
+        y = sin * x + cos * y;
+    }
+
     public Vec2 clamp(float min, float max) {
         float norm = norm();
         if (norm2() == 0)

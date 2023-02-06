@@ -17,15 +17,20 @@ public class Joc {
 
 	final Random ran = new Random();
 
+	SceneManager sceneManager;
+
 	private final List<GameObject> gameObjects = new ArrayList<>();
 	private final List<Collider> colliders = new ArrayList<>();
 	private Set<UnorderedPair<Collider>> activeCollisions = new HashSet<>();
+	private final List<GUIElement> GUIElements = new ArrayList<>();
+	private final List<MouseReciever> GUIInteractables = new ArrayList<>();
+	private List<MouseReciever> currentContains = new ArrayList<>();
 	private final Queue<GameObject> instatiateQueue = new ArrayDeque<>();
 	private final Queue<GameObject> destroyQueue = new ArrayDeque<>();
 
 	Camera camera;
+	GameController gameController;
 	PlayerShip playerShip;
-	boolean gamePaused = false;
 
 	public static void main(String[] args) {
 		Joc j = new Joc();
@@ -34,6 +39,7 @@ public class Joc {
 
 	public Joc () {
 		AssetLoader.loadAssets();
+		sceneManager = new SceneManager(this, Scene.GAMEPLAY);
 		f = new Finestra(this);
 		Input.initInput();
 		Input input = new Input();
@@ -43,6 +49,7 @@ public class Joc {
 	
 	public void run () {
 		camera = new Camera(this, new Vec2(), f);
+		gameController = new GameController(this);
 
 		new Background(this);
 		playerShip = new PlayerShip(this, new Vec2(0, 0));
@@ -50,11 +57,11 @@ public class Joc {
 			new Bomber(this, Vec2.randomWithRadius(200));
 			new Frigate(this, Vec2.randomWithRadius(200));
 		}
-		new Frigate(this, new Vec2(0, -100));
 		new Battlecruiser(this, new Vec2(100, 0));
-		new Bomber(this, new Vec2(-200, 100));
-		new Fighter(this, new Vec2(0, 100));
+		new Fighter(this, new Vec2(0, 200));
+		new Scout(this, new Vec2());
 
+		new GUIText(this, f, new Vec2(0f, 0.5f), 0, new Vec2(0f, 0.5f), "Hola lol", Color.white, new Font("Arial", Font.PLAIN, 30), null);
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
 			double frameTime = currentTime - startTime;
@@ -82,6 +89,9 @@ public class Joc {
 			// Guardem Inputs
 			Input.updateMousePosition(f, camera);
 			Input.updateInputs();
+
+			// Interacció amb GUI
+			checkGUIInteraction();
 
 			// Lògica
 			update();
@@ -121,21 +131,14 @@ public class Joc {
 	}
 
 	private void update() {
-		if (Input.getActionDown(Action.PAUSE)) {
-			if (!gamePaused){
-				gamePaused = true;
-				Time.timeScale = 0;
-				// Menu...
-			}
-			else {
-				gamePaused = false;
-				Time.timeScale = 1;
-				// Close menu...
-			}
-		}
 		for (GameObject obj:gameObjects) {
 			if (!obj.destroying){
 				obj.update();
+			}
+		}
+		for (GUIElement gui:GUIElements) {
+			if (!gui.destroying) {
+				gui.update();
 			}
 		}
 	}
@@ -144,6 +147,11 @@ public class Joc {
 		for (GameObject obj:gameObjects) {
 			if (!obj.destroying){
 				obj.fixedUpdate();
+			}
+		}
+		for (GUIElement gui:GUIElements) {
+			if (!gui.destroying) {
+				gui.fixedUpdate();
 			}
 		}
 	}
@@ -194,6 +202,34 @@ public class Joc {
 				obj.lateUpdate();
 			}
 		}
+		for (GUIElement gui:GUIElements) {
+			if (!gui.destroying) {
+				gui.lateUpdate();
+			}
+		}
+	}
+
+	void checkGUIInteraction() {
+		List<MouseReciever> lastContains = currentContains;
+		currentContains = new ArrayList<>();
+		Vec2 mousePos = Input.getGUIMousePosition();
+		for (MouseReciever mr:GUIInteractables) {
+			if (mr.containsCoords(mousePos)) {
+				if (!lastContains.contains(mr)) {
+					mr.onMouseEnter();
+				}
+				currentContains.add(mr);
+				if (Input.getActionDown(Action.MENU_OK)) {
+					mr.onMouseClick();
+				}
+			}
+		}
+		lastContains.removeAll(currentContains);
+		for (MouseReciever mr:lastContains) {
+			mr.onMouseExit();
+		}
+		if (Input.getActionDown(Action.MENU_OK)) {
+		}
 	}
 
 	void addObject(GameObject obj) {
@@ -210,6 +246,13 @@ public class Joc {
 	void processNewObjects() {
 		while (!instatiateQueue.isEmpty()) {
 			GameObject next = instatiateQueue.remove();
+			if (next instanceof GUIElement) {
+				GUIElements.add((GUIElement) next);
+				if (next instanceof MouseReciever) {
+					GUIInteractables.add((MouseReciever) next);
+				}
+				continue;
+			}
 			gameObjects.add(next);
 			if (next instanceof Collider) {
 				colliders.add((Collider) next);
@@ -221,6 +264,13 @@ public class Joc {
 	void destroyObjects() {
 		while (!destroyQueue.isEmpty()) {
 			GameObject next = destroyQueue.remove();
+			if (next instanceof GUIElement) {
+				GUIElements.remove((GUIElement) next);
+				if (next instanceof MouseReciever) {
+					GUIInteractables.remove(next);
+				}
+				continue;
+			}
 			gameObjects.remove(next);
 			if (next instanceof Collider)
 				colliders.remove(next);
@@ -248,9 +298,16 @@ public class Joc {
 			}
         }
 
+		for (GUIElement elm:GUIElements) {
+			if (!elm.isChild) {
+				elm.pintar(g2, Camera.projectionMatrixGUI);
+			}
+		}
+
         AffineTransform savedT = g2.getTransform();
         g2.setColor(Color.gray);
-        g2.transform(AffineTransform.getScaleInstance(3, 3));
+        g2.scale(3, 3);
+		g2.setFont(new Font("Arial", Font.PLAIN, 16));
         g2.drawString(Double.toString(Time.fps()), 0, 20);
         g2.setTransform(savedT);
     }

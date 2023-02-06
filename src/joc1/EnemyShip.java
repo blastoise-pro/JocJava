@@ -18,7 +18,7 @@ abstract class EnemyShip extends Ship {
     EnemyShip(Joc j, Vec2 position, float maxHP, float maxSpeed, float thrustPower, float airResistance, float knockback, float contactDamage) {
         super(j, position, 0, new Vec2(1, 1), new Vec2(), maxHP,
                 maxSpeed, thrustPower, 0, airResistance, knockback,
-                new Vec2(8, 4), Direction4.RIGHT.vector(), 10, 100, 0.5f, null);
+                100, 0.5f, null);
         this.contactDamage = contactDamage;
     }
 
@@ -36,7 +36,8 @@ abstract class EnemyShip extends Ship {
     @Override
     public void onColliderEnter(Collider other) {
         if (other.getLabel().equals("bulletF")) {
-            damage(3);
+            Bullet bullet = (Bullet) other;
+            damage(bullet.damage);
         }
         else if (other.getLabel().equals("player")) {
             System.out.println("Enemy collided with player.");
@@ -47,12 +48,13 @@ abstract class EnemyShip extends Ship {
         }
     }
 
-    void damage(float amount) {
+    private void damage(float amount) {
         HP -= amount;
-        if (HP <= 0) {
+        if (HP <= 0 && !isDead) {
             HP = 0;
             isDead = true;
             explosion.play();
+            new Gem(j, getPosition(), (int) maxHP);
         }
     }
 

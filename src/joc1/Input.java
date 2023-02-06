@@ -6,7 +6,7 @@ import java.util.*;
 
 enum Action {
     MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN,
-    SHOOT, DODGE,
+    SHOOT, DODGE, SPECIAL,
     PAUSE,
     MENU_OK, MENU_BACK
 }
@@ -35,6 +35,7 @@ class Input implements KeyListener, MouseListener {
     private static final DirectionalInput dir = new DirectionalInput();
     private static Vec2 mousePosition = new Vec2();
     private static Vec2 windowMousePosition = new Vec2();
+    private static Vec2 GUIMousePosition = new Vec2();
 
     static void initInput() {
         // Creació dels objectes Key
@@ -60,6 +61,7 @@ class Input implements KeyListener, MouseListener {
         keyBinds.put(Action.MOVE_DOWN,  new Key(KeyEvent.VK_S,      false));
         keyBinds.put(Action.SHOOT,      new Key(MouseEvent.BUTTON1, true));
         keyBinds.put(Action.DODGE,      new Key(MouseEvent.BUTTON2, true));
+        keyBinds.put(Action.SPECIAL,    new Key(KeyEvent.VK_SPACE,  false));
         keyBinds.put(Action.PAUSE,      new Key(KeyEvent.VK_ESCAPE, false));
         // Menu
         keyBinds.put(Action.MENU_OK,   new Key(MouseEvent.BUTTON1, true));
@@ -73,10 +75,10 @@ class Input implements KeyListener, MouseListener {
         lastUpdateKeyState.putAll(keyState);
 
         dir.clear();
-        if (keyState.get(keyBinds.get(Action.MOVE_LEFT))) dir.addInput(Direction4.LEFT);
-        if (keyState.get(keyBinds.get(Action.MOVE_RIGHT))) dir.addInput(Direction4.RIGHT);
-        if (keyState.get(keyBinds.get(Action.MOVE_UP))) dir.addInput(Direction4.UP);
-        if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction4.DOWN);
+        if (keyState.get(keyBinds.get(Action.MOVE_LEFT))) dir.addInput(Direction.LEFT);
+        if (keyState.get(keyBinds.get(Action.MOVE_RIGHT))) dir.addInput(Direction.RIGHT);
+        if (keyState.get(keyBinds.get(Action.MOVE_UP))) dir.addInput(Direction.UP);
+        if (keyState.get(keyBinds.get(Action.MOVE_DOWN))) dir.addInput(Direction.DOWN);
     }
 
     static void updateMousePosition(Finestra f, Camera c) {
@@ -89,6 +91,7 @@ class Input implements KeyListener, MouseListener {
         c.inversePVMatrix.transform(pospoint, 0, pospoint, 0, 1);
         mousePosition = new Vec2(pospoint[0], pospoint[1]);
         windowMousePosition = new Vec2((float) mousePos.x/f.winWidth, (float) (f.winHeight - mousePos.y)/f.winHeight);
+        GUIMousePosition = new Vec2((float) mousePos.x/f.winWidth, (float) mousePos.y/f.winHeight);
     }
 
     static boolean getActionDown(Action action) {
@@ -113,6 +116,10 @@ class Input implements KeyListener, MouseListener {
 
     static Vec2 getWindowMousePosition() {
         return windowMousePosition.clone();
+    }
+
+    static Vec2 getGUIMousePosition() {
+        return GUIMousePosition.clone();
     }
 
     @Override

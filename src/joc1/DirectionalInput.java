@@ -1,15 +1,19 @@
 package joc1;
 
-enum Direction4 {
+enum Direction {
     UP    ((byte)1, new Vec2(0, 1)),
     DOWN  ((byte)2, new Vec2(0, -1)),
     LEFT  ((byte)4, new Vec2(-1, 0)),
-    RIGHT ((byte)8, new Vec2(1, 0));
+    UPLEFT ((byte) 5, new Vec2(-1, 1)),
+    DOWNLEFT ((byte) 6, new Vec2(-1, -1)),
+    RIGHT ((byte)8, new Vec2(1, 0)),
+    UPRIGHT ((byte) 9, new Vec2(1, 1)),
+    DOWNRIGHT ((byte) 10, new Vec2(1, -1));
 
     private final byte directionBit;
     private final Vec2 vector;
 
-    Direction4(byte directionBit, Vec2 vector) {
+    Direction(byte directionBit, Vec2 vector) {
         this.directionBit = directionBit;
         this.vector = vector;
     }
@@ -22,26 +26,13 @@ enum Direction4 {
     Vec2 vector(){
         return vector;
     }
-}
 
-enum Direction8 {
-    UP    (new Vec2(0, 1)),
-    DOWN  (new Vec2(0, -1)),
-    LEFT  (new Vec2(-1, 0)),
-    UPLEFT (new Vec2(-1, 1)),
-    DOWNLEFT (new Vec2(-1, -1)),
-    RIGHT (new Vec2(1, 0)),
-    UPRIGHT (new Vec2(1, 1)),
-    DOWNRIGHT (new Vec2(1, -1));
-
-    private final Vec2 vector;
-
-    Direction8(Vec2 vector) {
-        this.vector = vector;
+    static Direction[] orthogonals() {
+        return new Direction[]{UP, DOWN, LEFT, RIGHT};
     }
 
-    Vec2 vector(){
-        return vector;
+    static Direction[] diagonals() {
+        return new Direction[]{UPLEFT, DOWNLEFT, UPRIGHT, DOWNRIGHT};
     }
 }
 
@@ -52,11 +43,11 @@ class DirectionalInput {
         directionBits = 0;
     }
 
-    void addInput(Direction4 dir){
+    void addInput(Direction dir){
         directionBits |= dir.directionBit();
     }
 
-    void removeInput(Direction4 dir) {
+    void removeInput(Direction dir) {
         directionBits &= ~dir.directionBit();
     }
 
@@ -64,13 +55,13 @@ class DirectionalInput {
         directionBits = 0;
     }
 
-    boolean isPressed(Direction4 dir) {
+    boolean isPressed(Direction dir) {
         return (directionBits & dir.directionBit()) != 0;
     }
 
     Vec2 getRawDirection() {
         Vec2 res = new Vec2();
-        for (Direction4 dir: Direction4.values()){
+        for (Direction dir:Direction.orthogonals()){
             if (isPressed(dir))
                 res.Add(dir.vector());
         }
