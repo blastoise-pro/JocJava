@@ -7,6 +7,7 @@ import java.util.List;
 
 abstract class GUIElement extends GameObject {
     private Vec2 anchor;
+    GUIElement parent;
     List<GUIElement> childs = new ArrayList<>();
 
     Vec2 getAnchor() {
@@ -20,6 +21,7 @@ abstract class GUIElement extends GameObject {
         super(j, position, 0, dimensions);
         setAnchor(anchor);
         if (parent != null) {
+            this.parent = parent;
             isChild = true;
             parent.childs.add(this);
         }

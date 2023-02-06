@@ -35,7 +35,7 @@ class PlayerShip extends Ship {
 
     PlayerShip(Joc j, Vec2 position) {
         super(j, position, 0, new Vec2(1f, 1f), new Vec2(), 10,
-                40, 100, 0.03f, 0.9f, 2f,
+                40, 100, 0.03f, 0.9f, 0f,
                 200, 1f, null);
 
         shotSpawnsByLevel.add(List.of(shotSpawnPoints[0]));

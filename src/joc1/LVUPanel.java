@@ -1,17 +1,23 @@
 package joc1;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 class LVUPanel extends Panel {
     private final static float speed = 4;
     private final static BufferedImage normalImage = AssetLoader.border1;
     private final static BufferedImage hoverImage = AssetLoader.border2;
-
+    private final static Font fontTitle = new Font("Arial", Font.BOLD, 26);
+    private final static Font fontDescription = new Font("Arial", Font.PLAIN, 14);
 
     Upgrade upgrade;
     LVUPanel(Joc j, Vec2 position, Upgrade upgrade) {
         super(j, position, 0, new Vec2(0.4f, 0.3f), new Vec2(.5f, .5f), normalImage, null);
         this.upgrade = upgrade;
+        if (upgrade != null) {
+            GUIElement title = new GUIText(j, new Vec2(0.08f, 0.15f), 0, new Vec2(0f, 0f), upgrade.name, Color.white, fontTitle, this);
+            new GUIText(j, new Vec2(0f, 1.5f), 0, new Vec2(0f, 0f), upgrade.description, Color.white, fontDescription, title);
+        }
     }
 
     void update() {

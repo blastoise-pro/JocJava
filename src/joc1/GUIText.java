@@ -3,48 +3,51 @@ package joc1;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Rectangle2D;
 
 public class GUIText extends GUIElement {
-    Finestra f;
     String text;
     Color color;
     Font font;
+    float textWidth, textHeight;
 
-    GUIText(Joc j, Finestra f, Vec2 position, float rotation, Vec2 anchor, String text, Color color, Font font, GUIElement parent) {
+    GUIText(Joc j, Vec2 position, float rotation, Vec2 anchor, String text, Color color, Font font, GUIElement parent) {
         super(j, position, rotation, new Vec2(), anchor, parent);
-        this.f = f;
         this.text = text;
         this.color = color;
         this.font = font;
+
         FontRenderContext frc = new FontRenderContext(null, true, true);
-        setScale(new Vec2((float) font.getStringBounds(text, frc).getWidth(), (float) font.getStringBounds(text, frc).getHeight()));
+        Rectangle2D bounds = font.getStringBounds(text, frc);
+        textWidth = (float) bounds.getWidth();
+        textHeight = (float) bounds.getHeight();
+        float[] lengths = {textWidth, textHeight};
+        Camera.inversePMatrixGUI.transform(lengths, 0, lengths, 0, 1);
+        GUIElement nextParent = this;
+        while (nextParent.parent != null) {
+            nextParent = nextParent.parent;
+            lengths[0] /= nextParent.getScale().x;
+            lengths[1] /= nextParent.getScale().y;
+        }
+        setScale(new Vec2(lengths[0], lengths[1]));
         System.out.println("Scale: " + getScale());
     }
 
     @Override
     public void pintar(Graphics2D g, AffineTransform PMatrix) {
-        //AffineTransform projectionModel = new AffineTransform(PMatrix);
-        AffineTransform projectionModel = new AffineTransform();
-        projectionModel.scale(f.winWidth, f.winHeight);
+        AffineTransform projectionModel = new AffineTransform(PMatrix);
+        projectionModel.concatenate(getModelMatrix());
 
-        projectionModel.translate(getPosition().x, getPosition().y);
-        projectionModel.scale(1f/f.winWidth, 1f/f.winHeight);
-        projectionModel.rotate(getRotation());
-        projectionModel.scale(getScale().x, getScale().y);
+        AffineTransform textTrans = new AffineTransform(projectionModel);
+        textTrans.scale(1f/textWidth, 1f/textHeight);
 
-        projectionModel.translate(-getAnchor().x, getAnchor().y);
-        projectionModel.scale(1f/getScale().x, 1f/getScale().y);
 
         AffineTransform savedT = g.getTransform();
-        //g.transform(projectionModel);
-        //g.translate(getPosition().x * 1500, getPosition().y * 900);
-        //g.rotate(getRotation());
-        //g.translate(-getAnchor().x * getScale().x, getAnchor().y * getScale().y);
-        g.transform(projectionModel);
-        //g.scale(3, 3);
+        g.transform(textTrans);
         g.setColor(color);
         g.setFont(font);
-        g.drawString(text, 0, 0);
+        g.drawString(text, 0, textHeight);
         g.setTransform(savedT);
 
         for (GUIElement child:childs) {

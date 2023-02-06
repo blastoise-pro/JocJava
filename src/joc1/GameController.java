@@ -18,8 +18,13 @@ class GameController extends GameObject {
 
     void update() {
         if (Input.getActionDown(Action.SPECIAL)) {
-            j.sceneManager.hideLevelUpMenu();
-            togglePause();
+            if (j.sceneManager.current == Scene.LEVELUP){
+                j.sceneManager.hideLevelUpMenu();
+                togglePause();
+            }
+            else {
+                levelUp();
+            }
         }
         if (Input.getActionDown(Action.PAUSE)) {
             togglePause();

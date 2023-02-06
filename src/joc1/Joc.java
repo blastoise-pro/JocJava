@@ -61,7 +61,6 @@ public class Joc {
 		new Fighter(this, new Vec2(0, 200));
 		new Scout(this, new Vec2());
 
-		new GUIText(this, f, new Vec2(0f, 0.5f), 0, new Vec2(0f, 0.5f), "Hola lol", Color.white, new Font("Arial", Font.PLAIN, 30), null);
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
 			double frameTime = currentTime - startTime;
