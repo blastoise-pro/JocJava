@@ -46,7 +46,7 @@ class GameController extends GameObject {
         }
         int lastMinute = currentMinute;
         currentMinute = (int) ((Time.time() - startTime)/60);
-        if (currentMinute == 10 && j.sceneManager.current == Scene.GAMEPLAY) {
+        if (currentMinute == 5 && j.sceneManager.current == Scene.GAMEPLAY) {
             j.sceneManager.showWin();
             togglePause();
         }

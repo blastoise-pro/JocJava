@@ -9,7 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 class AssetLoader {
+    private static final GraphicsConfiguration GFX_CONFIG = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+
     public static BufferedImage menuBG;
+    public static BufferedImage BGlayer1;
+    public static BufferedImage BGlayer2;
+    public static BufferedImage BGlayerDust;
+    public static BufferedImage BGlayerPlanets;
     public static BufferedImage playerShip1;
     public static BufferedImage gem1;
     public static BufferedImage enemyBattlecruiser;
@@ -68,6 +74,11 @@ class AssetLoader {
             iconSkillHP = ImageIO.read(new File("assets/Icons/HP.png"));
 
             menuBG = ImageIO.read(new File("assets/GUI/menuBG.png"));
+
+            BGlayer1 = (ImageIO.read(new File("assets/BG/layer1m.png")));
+            BGlayer2 = (ImageIO.read(new File("assets/BG/layer2m.png")));
+            BGlayerDust = (ImageIO.read(new File("assets/BG/space_background_pack/layers/parallax-space-stars.png")));
+            BGlayerPlanets = (ImageIO.read(new File("assets/BG/space_background_pack/layers/parallax-space-far-planets.png")));
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -119,6 +130,29 @@ class AssetLoader {
             }
             //System.out.println();
         }
+    }
+
+    //https://stackoverflow.com/questions/31325742/java-awt-graphics-graphics-drawimage-is-too-slow-what-is-wrong
+    public static BufferedImage toCompatibleImage(BufferedImage image) {
+        /*
+         * if image is already compatible and optimized for current system settings, simply return it
+         */
+        if (image.getColorModel().equals(GFX_CONFIG.getColorModel())) {
+            return image;
+        }
+
+        // image is not optimized, so create a new image that is
+        final BufferedImage new_image = GFX_CONFIG.createCompatibleImage(image.getWidth(), image.getHeight(), image.getTransparency());
+
+        // get the graphics context of the new image to draw the old image on
+        final Graphics2D g2d = (Graphics2D) new_image.getGraphics();
+
+        // actually draw the image and dispose of context no longer needed
+        g2d.drawImage(image, 0, 0, null);
+        g2d.dispose();
+
+        // return the new optimized image
+        return new_image;
     }
 
 }

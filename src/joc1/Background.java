@@ -2,6 +2,7 @@ package joc1;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,11 @@ class Background extends GameObject {
 
         Layer(String path, Vec2 scale, float movementFactor) {
             sprite = new Sprite(path, scale);
+            this.movementFactor = movementFactor;
+        }
+
+        Layer(BufferedImage bufferedImage, Vec2 scale, float movementFactor) {
+            sprite = new Sprite(bufferedImage, scale);
             this.movementFactor = movementFactor;
         }
 
@@ -53,12 +59,12 @@ class Background extends GameObject {
 
     Background(Joc j) {
         super(j, new Vec2(0, 0), 0, new Vec2(1f, 1f));
-        layers.add(new Layer("assets/BG/layer1.png", new Vec2(.2f, .2f), 0.9f));
+        layers.add(new Layer(AssetLoader.BGlayer1, new Vec2(.3f, .3f), 0.9f));
         //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-backgound.png", new Vec2(1f, 1f), 0.9f));
         //layers.add(new Layer("assets/BG/layer3.png", new Vec2(.2f, .2f), 0.5f));
-        layers.add(new Layer("assets/BG/layer2.png", new Vec2(.2f, .2f), 0.7f));
-        layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-stars.png", new Vec2(.5f, .5f), 0.5f));
-        layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-far-planets.png", new Vec2(1f, 1f), 0.3f));
+        layers.add(new Layer(AssetLoader.BGlayer2, new Vec2(.3f, .3f), 0.7f));
+        layers.add(new Layer(AssetLoader.BGlayerDust, new Vec2(.5f, .5f), 0.5f));
+        layers.add(new Layer(AssetLoader.BGlayerPlanets, new Vec2(1f, 1f), 0.3f));
         //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-ring-planet.png", new Vec2(1f, 1f), 0.3f));
         //layers.add(new Layer("assets/BG/space_background_pack/layers/parallax-space-big-planet.png", new Vec2(1f, 1f), 0.2f));
     }

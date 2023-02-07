@@ -10,6 +10,7 @@ public class Joc {
 	public final static boolean DRAW_HITBOXES = false;
 	public final static boolean DRAW_BULLETSPAWNS = false;
 	public final static boolean SHOW_FPS = false;
+	public final static boolean DRAW_QUALITY_LOW = false;
 	private double startTime = System.currentTimeMillis()/1000.0;
 
 	private final Finestra f;
@@ -108,11 +109,19 @@ public class Joc {
 			lateUpdate();
 
 			// Render
-			Graphics2D g2 = (Graphics2D) f.bstrat.getDrawGraphics();
-			g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-			render(g2);
-			g2.dispose();
-			f.bstrat.show();
+			if (!f.changing && !f.getBufferStrategy().contentsLost()){
+				Graphics2D g2 = (Graphics2D) f.getBufferStrategy().getDrawGraphics();
+				if (DRAW_QUALITY_LOW) {
+					g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+					g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+					g2.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);
+					g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
+				}
+				render(g2);
+				g2.dispose();
+				f.bstrat.show();
+			}
 			//render(g2buff);
 			//f.fGraphics.drawImage(bufferImage, 0, 0, null);
 

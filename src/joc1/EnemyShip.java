@@ -29,7 +29,7 @@ abstract class EnemyShip extends Ship {
 
     void update() {
         if (isDead){
-            if(explosion.getIndex() == 8) {
+            if(explosion.getIndex() >= 8) {
                 drawShip = false;
             }
             if (!explosion.isPlaying()) {

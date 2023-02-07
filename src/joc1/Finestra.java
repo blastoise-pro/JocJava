@@ -9,6 +9,7 @@ class Finestra extends Frame {
 	private final static GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	BufferStrategy bstrat;
 	//Graphics2D fGraphics;
+	boolean changing = false;
 
 	int winHeight = 900, winWidth = 1500;
 	boolean fullscreen = false;
@@ -23,6 +24,8 @@ class Finestra extends Frame {
 		// Alerta: Si tens targeta Nvidia recomano desactivar la sincronització vertical o seleccionar el mode ràpid
 		// al panell de control per disminuir l'input lag en pantalla completa
 		bstrat = getBufferStrategy();
+		System.out.println(device.isFullScreenSupported());
+		System.out.println(bstrat.getCapabilities().isPageFlipping());
 		j = joc;
 
 		/*
@@ -81,15 +84,26 @@ class Finestra extends Frame {
 
 	private void toggleFullscreen() {
 		if (fullscreen) {
+			changing = true;
+			dispose();
+			setUndecorated(false);
 			device.setFullScreenWindow(null);
 			setResizable(true);
+			setVisible(true);
 			fullscreen = false;
+			repaint();
+			changing = false;
 		}
 		else {
 			if (device.isFullScreenSupported()) {
-				setResizable(false);
+				changing = true;
+				dispose();
+				setUndecorated(true);
 				device.setFullScreenWindow(this);
+				setResizable(false);
 				fullscreen = true;
+				repaint();
+				changing = false;
 			}
 		}
 		/*

@@ -112,7 +112,7 @@ abstract class Bullet extends PhysicsObject implements Collider {
 
             if (bounceCount > 0 && effects.contains(BulletEffect.BOUNCE)) {
                 for (EnemyShip enemy:j.gameController.enemyList) {
-                    if (enemy == other) continue;
+                    if (enemy == other || enemy.isDead) continue;
                     Vec2 toEnemy = enemy.getPosition().sub(getPosition());
                     float toEnemyDist = toEnemy.norm();
                     if (toEnemyDist < bounceRange) {
