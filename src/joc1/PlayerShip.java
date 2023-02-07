@@ -47,7 +47,7 @@ class PlayerShip extends Ship {
         shotSpawnsByLevel.add(List.of(shotSpawnPoints[0], shotSpawnPoints[1], shotSpawnPoints[2], shotSpawnPoints[3], shotSpawnPoints[4]));
 
         Vec2 hitboxScale = new Vec2(0.1f, 0.1f);
-        sprite = new Sprite("assets/Ships/basic1.png", hitboxScale);
+        sprite = new Sprite(AssetLoader.playerShip1, hitboxScale);
         shipShape = AffineTransform.getScaleInstance(hitboxScale.x, hitboxScale.y)
                 .createTransformedShape(new Polygon(xPoints, yPoints, xPoints.length));
         updateCollider();

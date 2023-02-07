@@ -34,12 +34,13 @@ class AssetLoader {
 
     public static void loadAssets() {
         try {
-            BufferedImage explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/Half Sized/explosion 3.png"));
+            BufferedImage explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/explosion 3.png"));
             explosionBig = loadAtlas(explosionAtlas, 8, 8, 2, 62);
-            explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/Half Sized/explosion 4.png"));
+            explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/explosion 4.png"));
             explosionHuge = loadAtlas(explosionAtlas, 8, 8, 1, 63);
-            explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/Half Sized/explosion 1.png"));
+            explosionAtlas = ImageIO.read(new File("assets/SFX/Explosion Animations/explosion 1.png"));
             explosionSmall = loadAtlas(explosionAtlas, 8, 8, 2, 62);
+
             playerShip1 = ImageIO.read(new File("assets/Ships/basic1.png"));
             enemyBattlecruiser = ImageIO.read(new File("assets/Ships/Nairan - Battlecruiser - Base.png"));
             enemyBomber = ImageIO.read(new File("assets/Ships/Nairan - Bomber - Base.png"));
@@ -51,9 +52,11 @@ class AssetLoader {
             outline(enemyBattlecruiser, Color.red);
             outline(enemyFrigate, Color.white);
             outline(enemyScout, Color.white);
+
             gem1 = ImageIO.read(new File("assets/Gems/gem1.png"));
-            border1 = ImageIO.read(new File("assets/border1.png"));
-            border2 = ImageIO.read(new File("assets/border2.png"));
+
+            border1 = ImageIO.read(new File("assets/GUI/border1.png"));
+            border2 = ImageIO.read(new File("assets/GUI/border2.png"));
 
             iconSkillAS = ImageIO.read(new File("assets/Icons/AS.png"));
             iconSkillCrosshair  = ImageIO.read(new File("assets/Icons/crosshair.png"));
@@ -64,7 +67,7 @@ class AssetLoader {
             iconSkillMS = ImageIO.read(new File("assets/Icons/MS.png"));
             iconSkillHP = ImageIO.read(new File("assets/Icons/HP.png"));
 
-            menuBG = ImageIO.read(new File("assets/menuBG.png"));
+            menuBG = ImageIO.read(new File("assets/GUI/menuBG.png"));
         }
         catch (IOException e) {
             e.printStackTrace();

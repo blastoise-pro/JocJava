@@ -1,6 +1,7 @@
 package joc1;
 
 import java.awt.*;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +41,7 @@ abstract class Bullet extends PhysicsObject implements Collider {
         this.damage = damage;
         this.penetration = penetration;
         this.bounceCount = bounceCount;
-        this.effects = effects;
+        this.effects = EnumSet.copyOf(effects);
 
         if (bulletShape != null){
             this.bulletShape = bulletShape;
@@ -68,7 +69,7 @@ abstract class Bullet extends PhysicsObject implements Collider {
                     }
                 }
             }
-            if (target != null) {
+            if (target != null && !target.isDead) {
                 float rotateAngle = target.getPosition().sub(getPosition()).getAngle(getSpeed());
                 if (rotateAngle > 0) {
                     rotateAngle = -1;
@@ -97,7 +98,18 @@ abstract class Bullet extends PhysicsObject implements Collider {
         if (friendly && other.getLabel().equals("enemy")) {
             if (effects.contains(BulletEffect.HOMING)) {
                 target = null;
+                effects.remove(BulletEffect.HOMING);
             }
+
+            if (effects.contains(BulletEffect.AREA)) {
+                explosion.play();
+                for (EnemyShip enemy:j.gameController.enemyList) {
+                    if (enemy.getPosition().sub(getPosition()).norm2() < explosionRange*explosionRange) {
+                        enemy.onColliderEnter(this);
+                    }
+                }
+            }
+
             if (bounceCount > 0 && effects.contains(BulletEffect.BOUNCE)) {
                 for (EnemyShip enemy:j.gameController.enemyList) {
                     if (enemy == other) continue;
@@ -106,18 +118,8 @@ abstract class Bullet extends PhysicsObject implements Collider {
                     if (toEnemyDist < bounceRange) {
                         System.out.println("Bouncing to enemy");
                         setSpeed(getSpeed().rotate(getSpeed().getAngle(toEnemy)));
-                        break;
-                    }
-                }
-                bounceCount--;
-                return;
-            }
-
-            if (effects.contains(BulletEffect.AREA)) {
-                explosion.play();
-                for (EnemyShip enemy:j.gameController.enemyList) {
-                    if (enemy.getPosition().sub(getPosition()).norm2() < explosionRange*explosionRange) {
-                        enemy.onColliderEnter(this);
+                        bounceCount--;
+                        return;
                     }
                 }
             }
