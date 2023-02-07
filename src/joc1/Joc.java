@@ -8,7 +8,8 @@ import java.util.List;
 
 public class Joc {
 	public final static boolean DRAW_HITBOXES = false;
-	public final static boolean DRAW_BULLETSPAWNS = true;
+	public final static boolean DRAW_BULLETSPAWNS = false;
+	public final static boolean SHOW_FPS = false;
 	private double startTime = System.currentTimeMillis()/1000.0;
 
 	private final Finestra f;
@@ -49,17 +50,8 @@ public class Joc {
 	
 	public void run () {
 		camera = new Camera(this, new Vec2(), f);
-		gameController = new GameController(this);
 
-		new Background(this);
-		playerShip = new PlayerShip(this, new Vec2(0, 0));
-		for (int i = 0; i < 5; i++) {
-			new Bomber(this, Vec2.randomWithRadius(200));
-			new Frigate(this, Vec2.randomWithRadius(200));
-		}
-		new Battlecruiser(this, new Vec2(100, 0));
-		new Fighter(this, new Vec2(0, 200));
-		new Scout(this, new Vec2());
+		sceneManager.showMainMenu();
 
 		while (true) {
 			double currentTime = System.currentTimeMillis()/1000.0;
@@ -98,7 +90,7 @@ public class Joc {
 			processNewObjects();
 
 			// Físiques
-			int steps = 0;
+			//int steps = 0;
 			Time.callingFromFixedUpdate = true;
 			while (Time.unsimulatedTime() >= Time.fixedDeltaTime) {
 				fixedUpdate(); // Càlculs i moviments de cada objecte
@@ -106,7 +98,7 @@ public class Joc {
 
 				processNewObjects();
 				Time.physicsStep();
-				steps++;
+				//steps++;
 			}
 			Time.callingFromFixedUpdate = false;
 			//System.out.println("Physics steps taken: " + steps);
@@ -172,6 +164,9 @@ public class Joc {
 				if (!col2.colliderIsActive() || col1.getCollisionMask().contains(col2.getLabel()) || col2.getCollisionMask().contains(col1.getLabel())) {
 					continue;
 				}
+				if (!col1.getCollider().getBounds2D().intersects(col2.getCollider().getBounds2D())) {
+					continue;
+				}
 				area = new Area(col1.getCollider());
 				area.intersect(new Area(col2.getCollider()));
 				if (!area.isEmpty()) {
@@ -227,8 +222,6 @@ public class Joc {
 		for (MouseReciever mr:lastContains) {
 			mr.onMouseExit();
 		}
-		if (Input.getActionDown(Action.MENU_OK)) {
-		}
 	}
 
 	void addObject(GameObject obj) {
@@ -273,6 +266,9 @@ public class Joc {
 			gameObjects.remove(next);
 			if (next instanceof Collider)
 				colliders.remove(next);
+			if (next instanceof EnemyShip) {
+				gameController.enemyList.remove(next);
+			}
 		}
 
 		/*
@@ -303,11 +299,13 @@ public class Joc {
 			}
 		}
 
-        AffineTransform savedT = g2.getTransform();
-        g2.setColor(Color.gray);
-        g2.scale(3, 3);
-		g2.setFont(new Font("Arial", Font.PLAIN, 16));
-        g2.drawString(Double.toString(Time.fps()), 0, 20);
-        g2.setTransform(savedT);
+		if (SHOW_FPS) {
+			AffineTransform savedT = g2.getTransform();
+			g2.setColor(Color.gray);
+			g2.scale(3, 3);
+			g2.setFont(new Font("Arial", Font.PLAIN, 16));
+			g2.drawString(Double.toString(Time.fps()), 0, 20);
+			g2.setTransform(savedT);
+		}
     }
 }

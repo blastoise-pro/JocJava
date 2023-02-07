@@ -27,6 +27,9 @@ class Camera extends GameObject {
     }
 
     void lateUpdate() {
+        if (j.sceneManager.current != Scene.GAMEPLAY) {
+            return;
+        }
         Vec2 screenVector = Input.getWindowMousePosition();
         screenVector.x = (screenVector.x - 0.5f) * (r-l) * 0.8f;
         screenVector.y = (screenVector.y - 0.5f) * (t-b) * 0.8f;

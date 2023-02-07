@@ -6,9 +6,10 @@ import java.awt.geom.AffineTransform;
 class Frigate extends EnemyShip {
     private final static int[] xPoints = {-15, -15, 22, 22};
     private final static int[] yPoints = {20, -20, -8, 8};
+    static final float baseHP = 12;
 
     Frigate(Joc j, Vec2 position) {
-        super(j, position, 12, 30, 100, 0.9f, 2f, 2);
+        super(j, position, baseHP, 30, 100, 0.9f, 2f, 2);
         Vec2 hitboxScale = new Vec2(.2f,.2f);
         sprite = new Sprite(AssetLoader.enemyFrigate, (float) -Math.PI/2, hitboxScale);
         shipShape = AffineTransform.getScaleInstance(hitboxScale.x, hitboxScale.y)

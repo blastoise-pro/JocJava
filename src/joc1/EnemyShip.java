@@ -2,6 +2,7 @@ package joc1;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,11 +15,15 @@ abstract class EnemyShip extends Ship {
     HPBar hpBar;
     Animation explosion;
     float contactDamage;
+    float baseHP;
 
     EnemyShip(Joc j, Vec2 position, float maxHP, float maxSpeed, float thrustPower, float airResistance, float knockback, float contactDamage) {
         super(j, position, 0, new Vec2(1, 1), new Vec2(), maxHP,
                 maxSpeed, thrustPower, 0, airResistance, knockback,
                 100, 0.5f, null);
+        baseHP = maxHP;
+        this.maxHP = (float) (Time.time() - j.gameController.startTime) * baseHP * 0.03f + baseHP;
+        this.HP = this.maxHP;
         this.contactDamage = contactDamage;
     }
 
@@ -37,10 +42,9 @@ abstract class EnemyShip extends Ship {
     public void onColliderEnter(Collider other) {
         if (other.getLabel().equals("bulletF")) {
             Bullet bullet = (Bullet) other;
-            damage(bullet.damage);
+            damage(bullet);
         }
         else if (other.getLabel().equals("player")) {
-            System.out.println("Enemy collided with player.");
             collideWithShip((Ship) other);
         }
         else if (other.getLabel().equals("enemy")) {
@@ -48,13 +52,29 @@ abstract class EnemyShip extends Ship {
         }
     }
 
-    private void damage(float amount) {
-        HP -= amount;
+    private void damage(Bullet bullet) {
+        HP -= bullet.damage;
         if (HP <= 0 && !isDead) {
             HP = 0;
             isDead = true;
             explosion.play();
-            new Gem(j, getPosition(), (int) maxHP);
+            new Gem(j, getPosition(), (int) baseHP);
+            if (bullet.effects.contains(BulletEffect.REPLICATE)) {
+                int rand = j.ran.nextInt(2);
+                Direction[] dirs;
+                if (rand == 1) {
+                    dirs = Direction.orthogonals();
+                }
+                else {
+                    dirs = Direction.diagonals();
+                }
+                Set<BulletEffect> spawnEffects = EnumSet.copyOf(bullet.effects);
+                spawnEffects.remove(BulletEffect.HOMING);
+                for (Direction dir:dirs) {
+                    new BasicBullet(j, getPosition(), dir.vector().scale(j.playerShip.bulletSpeed), j.playerShip.bulletSize,
+                            true, j.playerShip.attackDamage, j.playerShip.bulletPenetration, j.playerShip.bulletBounces, spawnEffects);
+                }
+            }
         }
     }
 

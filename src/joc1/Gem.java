@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 
 public class Gem extends PhysicsObject {
-    private final static float magnetRange = 30;
+    private final static float magnetRange = 25;
     private final static float linearRange = 10;
     private final static float collectRange = 5;
     private final static float initialForce = 100;

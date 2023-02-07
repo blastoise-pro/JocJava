@@ -3,7 +3,6 @@ package joc1;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 
 public class GUIText extends GUIElement {
@@ -14,14 +13,23 @@ public class GUIText extends GUIElement {
 
     GUIText(Joc j, Vec2 position, float rotation, Vec2 anchor, String text, Color color, Font font, GUIElement parent) {
         super(j, position, rotation, new Vec2(), anchor, parent);
-        this.text = text;
         this.color = color;
         this.font = font;
+        updateText(text);
+    }
 
+    void updateText(String text) {
+        this.text = text;
         FontRenderContext frc = new FontRenderContext(null, true, true);
-        Rectangle2D bounds = font.getStringBounds(text, frc);
-        textWidth = (float) bounds.getWidth();
-        textHeight = (float) bounds.getHeight();
+        float totalHeight = 0;
+        float totalWidth = 0;
+        for (String s:text.split("\n")) {
+            Rectangle2D bounds = font.getStringBounds(s, frc);
+            totalHeight += bounds.getHeight();
+            totalWidth = (float) Math.max(totalWidth, bounds.getWidth());
+        }
+        textWidth = totalWidth;
+        textHeight = totalHeight;
         float[] lengths = {textWidth, textHeight};
         Camera.inversePMatrixGUI.transform(lengths, 0, lengths, 0, 1);
         GUIElement nextParent = this;
@@ -31,7 +39,6 @@ public class GUIText extends GUIElement {
             lengths[1] /= nextParent.getScale().y;
         }
         setScale(new Vec2(lengths[0], lengths[1]));
-        System.out.println("Scale: " + getScale());
     }
 
     @Override
@@ -47,7 +54,12 @@ public class GUIText extends GUIElement {
         g.transform(textTrans);
         g.setColor(color);
         g.setFont(font);
-        g.drawString(text, 0, textHeight);
+        float y = 0;
+        for (String s:text.split("\n")) {
+            y += g.getFontMetrics().getHeight();
+            g.drawString(s, 0, y);
+        }
+
         g.setTransform(savedT);
 
         for (GUIElement child:childs) {

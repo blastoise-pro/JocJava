@@ -67,4 +67,12 @@ final class Time {
         unsimulatedTime += deltaTime;
         fps = 1/unscaledDeltaTime;
     }
+
+    static String getFormattedTime(double time) {
+        int mins = (int) (time/60);
+        String minuteString = mins < 10 ? "0" + mins : Integer.toString(mins);
+        int secs = (int) (time % 60);
+        String secondsString = secs < 10 ? "0" + secs : Integer.toString(secs);
+        return minuteString + ":" + secondsString;
+    }
 }

@@ -61,7 +61,7 @@ public class HPBar extends GameObject {
 
         // Front
         barpos.translate(-0.5f, 0f);
-        barpos.scale(parent.HP/parent.maxHP, 1);
+        barpos.scale(Math.max(parent.HP/parent.maxHP, 0), 1);
         float[] barpoints = {0, 0, 1, 0};
         barpos.transform(barpoints, 0, barpoints, 0, 2);
         GradientPaint gradient = new GradientPaint(barpoints[0], barpoints[1], startColor, barpoints[2], barpoints[3], endColor);

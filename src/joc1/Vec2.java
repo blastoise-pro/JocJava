@@ -66,8 +66,16 @@ public class Vec2 implements Cloneable{
         return x*vec.x + y*vec.y;
     }
 
+    public float cross(Vec2 vec) {
+        return x * vec.y - y * vec.x;
+    }
+
     public float getAngle() {
         return (float) Math.atan2(y, x);
+    }
+
+    public float getAngle(Vec2 vec) {
+        return (float) Math.atan2(cross(vec), dot(vec));
     }
 
     public Vec2 rotate(float theta) {

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class AssetLoader {
+    public static BufferedImage menuBG;
     public static BufferedImage playerShip1;
-    public static BufferedImage test1;
     public static BufferedImage gem1;
     public static BufferedImage enemyBattlecruiser;
     public static BufferedImage enemyBomber;
@@ -63,6 +63,8 @@ class AssetLoader {
             iconSkillHoming = ImageIO.read(new File("assets/Icons/homing.png"));
             iconSkillMS = ImageIO.read(new File("assets/Icons/MS.png"));
             iconSkillHP = ImageIO.read(new File("assets/Icons/HP.png"));
+
+            menuBG = ImageIO.read(new File("assets/menuBG.png"));
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -112,7 +114,7 @@ class AssetLoader {
                     }
                 }
             }
-            System.out.println();
+            //System.out.println();
         }
     }
 

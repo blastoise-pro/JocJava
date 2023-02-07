@@ -6,12 +6,13 @@ import java.awt.geom.AffineTransform;
 class Bomber extends EnemyShip {
     private final static int[] xPoints = {-11, -11, 12, 12};
     private final static int[] yPoints = {15, -15, -4, 5};
+    static final float baseHP = 9;
 
     float orbitDistance;
     float randomDir;
 
     Bomber(Joc j, Vec2 position) {
-        super(j, position, 9, 50, 10, 0.2f, 2f, 2);
+        super(j, position, baseHP, 50, 10, 0.2f, 2f, 2);
         Vec2 hitboxScale = new Vec2(.2f,.2f);
         sprite = new Sprite(AssetLoader.enemyBomber, (float) -Math.PI/2, hitboxScale);
         shipShape = AffineTransform.getScaleInstance(hitboxScale.x, hitboxScale.y)

@@ -19,19 +19,27 @@ abstract class Bullet extends PhysicsObject implements Collider {
     private final static Set<String> collisionMask = new HashSet<>(List.of(labelF, labelE));
     Shape bulletShape;
     Shape hitbox;
+    Animation explosion;
 
     float damage;
     int penetration;
     Set<BulletEffect> effects;
+    Ship target;
+    float homingRange = 30;
+    float rotationSpeed = 2 * (float) Math.PI;
+    int bounceCount;
+    float bounceRange = 25;
+    float explosionRange = 15;
 
     Bullet(Joc j, Vec2 pos, float rotation, Vec2 scale, Vec2 speed, boolean friendly, float lifetime, Shape bulletShape,
-           float damage, int penetration, Set<BulletEffect> effects) {
+           float damage, int penetration, int bounceCount, Set<BulletEffect> effects) {
         super(j, pos, rotation, scale, speed);
         this.friendly = friendly;
         this.lifetime = lifetime;
 
         this.damage = damage;
         this.penetration = penetration;
+        this.bounceCount = bounceCount;
         this.effects = effects;
 
         if (bulletShape != null){
@@ -50,7 +58,33 @@ abstract class Bullet extends PhysicsObject implements Collider {
             return;
         }
 
+        if (effects.contains(BulletEffect.HOMING))
+        {
+            if (target == null && friendly) {
+                for (EnemyShip enemy:j.gameController.enemyList) {
+                    if (!enemy.isDead && enemy.getPosition().sub(getPosition()).norm2() < homingRange*homingRange) {
+                        target = enemy;
+                        break;
+                    }
+                }
+            }
+            if (target != null) {
+                float rotateAngle = target.getPosition().sub(getPosition()).getAngle(getSpeed());
+                if (rotateAngle > 0) {
+                    rotateAngle = -1;
+                }
+                else if (rotateAngle < 0) {
+                    rotateAngle = 1;
+                }
+                else {
+                    rotateAngle = 0;
+                }
+                setSpeed(getSpeed().rotate(rotateAngle * rotationSpeed * (float) Time.deltaTime()));
+            }
+        }
+
         translate(getSpeed().scale((float) Time.deltaTime()));
+        setRotation(getSpeed().getAngle());
 
         updateCollider();
     }
@@ -60,8 +94,34 @@ abstract class Bullet extends PhysicsObject implements Collider {
         if (friendly && other.getLabel().equals("player")) {
             return;
         }
-
         if (friendly && other.getLabel().equals("enemy")) {
+            if (effects.contains(BulletEffect.HOMING)) {
+                target = null;
+            }
+            if (bounceCount > 0 && effects.contains(BulletEffect.BOUNCE)) {
+                for (EnemyShip enemy:j.gameController.enemyList) {
+                    if (enemy == other) continue;
+                    Vec2 toEnemy = enemy.getPosition().sub(getPosition());
+                    float toEnemyDist = toEnemy.norm();
+                    if (toEnemyDist < bounceRange) {
+                        System.out.println("Bouncing to enemy");
+                        setSpeed(getSpeed().rotate(getSpeed().getAngle(toEnemy)));
+                        break;
+                    }
+                }
+                bounceCount--;
+                return;
+            }
+
+            if (effects.contains(BulletEffect.AREA)) {
+                explosion.play();
+                for (EnemyShip enemy:j.gameController.enemyList) {
+                    if (enemy.getPosition().sub(getPosition()).norm2() < explosionRange*explosionRange) {
+                        enemy.onColliderEnter(this);
+                    }
+                }
+            }
+
             if (--penetration <= 0) {
                 j.destroy(this);
             }

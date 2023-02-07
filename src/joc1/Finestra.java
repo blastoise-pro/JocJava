@@ -60,6 +60,7 @@ class Finestra extends Frame {
 		});
 
 		Camera.updateGUIMatrices(this);
+		System.out.println(getInsets().left);
 	}
 
 	private void windowResized(ComponentEvent e) {

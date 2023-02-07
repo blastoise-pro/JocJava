@@ -26,11 +26,14 @@ class PlayerShip extends Ship {
 
     int level = 1;
     int totalXP = 0;
+    int lastXPLevel = 0;
     int nextXPlevel = 20;
 
     float attackDamage = 3;
     int bulletPenetration = 1;
-    Set<BulletEffect> bulletEffects = new HashSet<>();
+    int bulletBounces = 0;
+    float bulletSize = 1;
+    Set<BulletEffect> bulletEffects = EnumSet.noneOf(BulletEffect.class);
     int numberShots = 1;
 
     PlayerShip(Joc j, Vec2 position) {
@@ -53,10 +56,6 @@ class PlayerShip extends Ship {
     }
 
     void update() {
-        if (totalXP >= nextXPlevel) {
-            levelUp();
-        }
-
         if (j.gameController.gamePaused) {
             return;
         }
@@ -65,12 +64,18 @@ class PlayerShip extends Ship {
             if (explosion.getIndex() == 33) {
                 drawShip = false;
             }
+            if (!explosion.isPlaying()) {
+                j.gameController.togglePause();
+            }
             return;
+        }
+
+        if (totalXP >= nextXPlevel) {
+            levelUp();
         }
 
         if (Input.getAction(Action.SHOOT) && (Time.time() - lastShotTime >= 1/attackSpeed)) {
             shoot();
-            System.out.println("Clicked at: " + Input.getMousePosition());
         }
     }
 
@@ -89,13 +94,12 @@ class PlayerShip extends Ship {
         Vec2 shipPos = getPosition();
         for (Vec2 shotSpawnPos:shotSpawnsByLevel.get(numberShots - 1)) {
             new BasicBullet(j, shipPos.add(shotSpawnPos.rotate(getRotation())), Vec2.unitFromAngle(getRotation()).scale(bulletSpeed),
-                    true, attackDamage, bulletPenetration, bulletEffects);
+                    bulletSize, true, attackDamage, bulletPenetration, bulletBounces, bulletEffects);
         }
     }
 
     @Override
     public void onColliderEnter(Collider other) {
-        System.out.println("Collider " + getLabel() + " collided with " + other.getLabel());
         if (other.getLabel().equals("enemy")) {
             EnemyShip enemy = (EnemyShip) other;
             collideWithShip(enemy);
@@ -117,6 +121,7 @@ class PlayerShip extends Ship {
             HP = 0;
             isDead = true;
             explosion.play();
+            j.sceneManager.showGameOver();
         }
     }
 
@@ -125,7 +130,8 @@ class PlayerShip extends Ship {
     }
 
     void levelUp() {
-        nextXPlevel *= 2;
+        lastXPLevel = nextXPlevel;
+        nextXPlevel = (int) (lastXPLevel + 10 * (30 - 30 * Math.exp(-0.1 * level) + level * 0.01));
         level++;
         j.gameController.levelUp();
     }

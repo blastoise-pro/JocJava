@@ -17,6 +17,7 @@ class LVUPanel extends Panel {
         if (upgrade != null) {
             GUIElement title = new GUIText(j, new Vec2(0.08f, 0.15f), 0, new Vec2(0f, 0f), upgrade.name, Color.white, fontTitle, this);
             new GUIText(j, new Vec2(0f, 1.5f), 0, new Vec2(0f, 0f), upgrade.description, Color.white, fontDescription, title);
+            new Panel(j, new Vec2(0.935f, 0.15f), 0, new Vec2(0.18f, 0.4f), new Vec2(1f, 0f), upgrade.icon, this);
         }
     }
 

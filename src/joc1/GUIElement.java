@@ -1,6 +1,5 @@
 package joc1;
 
-import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ abstract class GUIElement extends GameObject {
         this.anchor = anchor.clone();
     }
     GUIElement(Joc j, Vec2 position, float rotation, Vec2 dimensions, Vec2 anchor, GUIElement parent) {
-        super(j, position, 0, dimensions);
+        super(j, position, rotation, dimensions);
         setAnchor(anchor);
         if (parent != null) {
             this.parent = parent;
